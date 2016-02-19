@@ -1,0 +1,1 @@
+start D:\electron-v0.33.0-win32-x64\electron.exe --debug=5858 .

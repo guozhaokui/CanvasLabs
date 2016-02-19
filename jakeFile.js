@@ -27,14 +27,37 @@ function compileDir(path, outdir) {
 }
 
 function compileApps(name){
-    compileDir('labs/apps/'+name);
+    if(name)
+        compileDir('labs/apps/'+name);
 }
-//directory('out');
-task('buildLoader',[],function(){});
+
+task('webglRenderor',[],function(){
+    compileDir('labs/runtime/runtimeMod/webglRenderor');
+});
+task('common',[],function(){
+    compileDir('labs/runtime/runtimeMod/common');
+});
+task('geometry',[],function(){
+    compileDir('labs/runtime/runtimeMod/geometry');
+})
+task('runtime',['webglRenderor','common','geometry'],function(){});
+
+task('buildLoader',[],function(){
+    compileDir('labs/apploader');
+});
 task('buildEJAnimTest',[],function(){
     compileApps('EJAnimTest');
 });
-task("local", ['buildLoader','buildEJAnimTest'], function () {
+task('webglTest',[],function(){
+    compileApps('webglTest');
+});
+task('buildAllApps',['runtime','buildEJAnimTest','webglTest'],function(){
+    // ['buildEJAnimTest',
+    // 'webglTest'].forEach(function(v,i,arr){
+    //     compileApps(v);
+    // });
+});
+task("local", ['buildLoader','buildAllApps'], function () {
     var params = [];
     for (var _i = 0; _i < arguments.length; _i++) {
         params[_i - 0] = arguments[_i];

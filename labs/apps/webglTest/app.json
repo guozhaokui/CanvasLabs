@@ -1,0 +1,12 @@
+{
+    "name":"test",
+    "version":1,
+    "dependencies":{
+        "common":["MemClass","ArcBall"],
+        "runtime":["webglRenderor"],
+        "3rd":["Ease","gl-matrix"]
+    },//依赖的模块名称
+    "scripts":["EJAnimTest.js"],
+    "stylesheets":[],
+    "main":""
+}

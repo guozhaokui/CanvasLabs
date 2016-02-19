@@ -1,0 +1,11 @@
+{
+    "name":"webglRenderor",
+    "version":1,
+    "dependencies":{
+        "common":["MemClass"],
+        "3rd":["Ease","gl-matrix"]
+    },//依赖的模块名称
+    "scripts":["webglRenderor.js"],
+    "stylesheets":[],
+    "main":""    
+}

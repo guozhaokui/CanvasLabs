@@ -1,0 +1,19 @@
+
+precision mediump float; 
+attribute vec3 g_Position;
+attribute vec2 g_TexCoord0;
+attribute vec3 g_Normal; 
+attribute float g_alpha; 
+uniform mat4 g_worldmatrix; 
+uniform mat4 g_persmat; 
+varying vec2 tex0;
+varying vec3 norm; 
+varying float alpha; 
+void main(){
+	vec4 vpos = vec4(g_Position.xyz,1.0); 
+	gl_Position = g_persmat*g_worldmatrix*vpos;
+	 
+	norm = g_Normal; 
+	tex0=g_TexCoord0;
+	alpha = g_alpha; 
+}

@@ -1,30 +1,21 @@
 ///<reference path="../../runtime/defination/gl-matrix.d.ts"/>
-///<reference path="../../runtime/runtimeMod/common/Camera.ts"/>
-///<reference path="../../runtime/runtimeMod/common/ArcBall.ts"/>
-///<reference path="../../runtime/runtimeMod/common/Async.ts"/>
-///<reference path="../../runtime/runtimeMod/webglRenderor/GpuProgram.ts"/>
-///<reference path="../../runtime/runtimeMod/webglRenderor/Mesh.ts"/>
-///<reference path="../../runtime/runtimeMod/webglRenderor/VertexDesc.ts"/>
-///<reference path="../../runtime/runtimeMod/webglRenderor/Material.ts"/>
-///<reference path="../../runtime/runtimeMod/webglRenderor/NamedData.ts"/>
-///<reference path="../../runtime/runtimeMod/webglRenderor/Renderer.ts"/>
-///<reference path="../../runtime/runtimeMod/geometry/buildBox.ts"/>
+'use strict'
+import renderer = require('../../runtime/runtimeMod/webglRenderor/Renderer');
+import gpuProg = require('../../runtime/runtimeMod/webglRenderor/GpuProgram');
+import mesh = require('../../runtime/runtimeMod/webglRenderor/Mesh');
+import vdesc = require('../../runtime/runtimeMod/webglRenderor/VertexDesc');
+import material = require('../../runtime/runtimeMod/webglRenderor/Material');
+import ndata = require('../../runtime/runtimeMod/webglRenderor/nameddata');
+import arcball = require('../../runtime/runtimeMod/common/ArcBall');
+import async = require('../../runtime/runtimeMod/common/async');
+import meshbuilder = require('../../runtime/runtimeMod/geometry/buildBox');
 
-//import Mesh = renderer.Mesh;
-//import VertexDesc = renderer.VertexDesc;
-//import Material = renderer.Material;
-//import RenderGroup = renderer.RenderGroup;
-//import NamedData = renderer.NamedData;
-//import Renderer = renderer.Renderer;
-//import WebGLExt = renderer.WebGLExt;
-//import boxBuilder  = meshBuilder.boxBuilder;
-//import ArcBall = util.ArcBall;
 
 class testMeshRender {
-    gpuprog = new renderer.GpuProgram();
-    mesh = new renderer.Mesh();
-    vertDesc = new renderer.VertexDesc();
-    material = new renderer.Material();
+    gpuprog = new gpuProg.GpuProgram();
+    mesh = new mesh.Mesh();
+    vertDesc = new vdesc.VertexDesc();
+    material = new material.Material();
     renderGroup = new renderer.RenderGroup();
     texture:WebGLTexture = null;
     rundata: Array<ArrayBuffer> = [null, null];
@@ -35,7 +26,7 @@ class testMeshRender {
     //camera: Camera = new Camera(this.eyePosFinal, this.targetPosFinal, this.upPosFinal);
     startMouseX: number;
     startMouseY: number;
-    arcball = new util.ArcBall();
+    arcball = new arcball.ArcBall();
     drag:boolean=false;
     arcballRot = quat.create();
     
@@ -116,29 +107,29 @@ testrad:number=0;
 
     async prepareRes(gl:renderer.WebGLExt) {
         try {
-            var img = await util.loadImage('imgs/test.jpg');
+            var img = await async.loadImage('imgs/test.jpg');
             var tex1: WebGLTexture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, tex1);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);   
             this.material.textures[0] = { gltexture: tex1 };
             this.material.textures[1] = { gltexture: tex1 }
-            var vssrc = await util.loadText('shaders/default1.vs.txt');
-            var pssrc = await util.loadText('shaders/default1.ps.txt');
+            var vssrc = await async.loadText('shaders/default1.vs.txt');
+            var pssrc = await async.loadText('shaders/default1.ps.txt');
             this.gpuprog.setSrc(vssrc, pssrc);
             this.material.gpuProgram = this.gpuprog.compile(gl);
 
-            var boxb = new meshBuilder.boxBuilder(0.8,0.8,0.8);
+            var boxb = new meshbuilder.boxBuilder(0.8,0.8,0.8);
             boxb.sepFace(true);
             boxb.needUV(true);
             boxb.needNorm(true);
             var ms = boxb.build();
             this.mesh= ms.mesh;
             this.vertDesc = ms.desc;
-            var runDt = new renderer.NamedData();
-            runDt.add("g_worldmatrix", 0, renderer.NamedData.tp_mat4, 1);
-            runDt.add("g_persmat", 64, renderer.NamedData.tp_mat4, 1);
+            var runDt = new ndata.NamedData();
+            runDt.add("g_worldmatrix", 0, ndata.NamedData.tp_mat4, 1);
+            runDt.add("g_persmat", 64, ndata.NamedData.tp_mat4, 1);
 
-            var nameddata: Array<renderer.NamedData> = [this.material.getNamedData(), runDt];
+            var nameddata: Array<ndata.NamedData> = [this.material.getNamedData(), runDt];
 
             this.material.alpha = 1.0;
             this.material.blendType = 0;
@@ -177,5 +168,7 @@ testrad:number=0;
         setInterval(() => { test1.onRender(gl); }, 15);    
     }
 }
+
+testMeshRender.main(window);
 
 

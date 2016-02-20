@@ -4,8 +4,7 @@
         "target": "es6",
         "noImplicitAny": false,
         "rootDir": ".",
-        "sourceMap": false,
-        "outFile": "webglRenderor.js"
+        "sourceMap": false
     },
     "exclude": [
         "node_modules"

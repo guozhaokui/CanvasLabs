@@ -4,8 +4,7 @@
         "target": "es6",
         "noImplicitAny": false,
         "rootDir": ".",
-        "sourceMap": false,
-        "outFile": "appLoader.js"
+        "sourceMap": false
     },
     "exclude": [
         "node_modules"

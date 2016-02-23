@@ -24,9 +24,9 @@ export class boxBuilder {
         this.w = w; this.l = l; this.h = h;
     }
     //每个面是独立的
-    sepFace(b: boolean) { this.bSepFace = b; }
-    needUV(b: boolean) { this.bUV = b; }
-    needNorm(b: boolean) { this.bNorm = b; }
+    sepFace(b: boolean):boxBuilder { this.bSepFace = b; return this;}
+    needUV(b: boolean):boxBuilder { this.bUV = b; return this; }
+    needNorm(b: boolean):boxBuilder { this.bNorm = b; return this; }
     build(): meshRet {
         var sz = 12;
         sz += this.bUV ? 8 : 0;

@@ -7,6 +7,8 @@ export class ArcBall {
     private lastPos: Float32Array = null;//上次的点的位置，是已经规格化的了
     private curPos = new Float32Array(3);
     private halfPos = new Float32Array(3);
+    private curQuat = quat.create();
+    private newQuat = quat.create();
     static e = 1e-6;
     //设置屏幕范围。可以不是方形的，对应的arcball也会变形。
     init(w: number, h: number) {
@@ -47,6 +49,10 @@ export class ArcBall {
         vec3.normalize(vt, vTo);
         this.quatFromUnitV2V(out, vf, vt);
     }
+    /**
+     * 开始新的拖动。
+     * 以后调用dragTo的时候就不用再计算hitpos了
+     */
     setTouchPos(x: number, y: number) {
         if (this.lastPos == null) {
             this.lastPos = new Float32Array(3);
@@ -56,12 +62,13 @@ export class ArcBall {
     //返回一个quat
     dragTo(x: number, y: number, out: Float32Array) {
         this.hitpos(x, y, this.curPos);
-        vec3.add(this.halfPos, this.lastPos, this.curPos);
-        vec3.normalize(this.halfPos, this.halfPos);
-        this.quatFromUnitV2V(out, this.lastPos, this.halfPos);
-        var tmp = this.lastPos;
-        this.lastPos = this.curPos;
-        this.curPos = tmp;
+        // vec3.add(this.halfPos, this.lastPos, this.curPos);
+        // vec3.normalize(this.halfPos, this.halfPos);
+        // this.quatFromUnitV2V(this.newQuat, this.lastPos, this.halfPos);  //这个函数好像有问题。
+        quat.rotationTo(this.newQuat,this.lastPos,this.curPos);
+        quat.mul(out,this.newQuat,this.curQuat);
+        quat.copy(this.curQuat,out);
+        vec3.copy(this.lastPos,this.curPos);
     }
     /*
         返回的是一个quat

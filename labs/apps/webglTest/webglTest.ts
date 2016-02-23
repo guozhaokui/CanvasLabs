@@ -24,8 +24,6 @@ class testMeshRender {
     upPosFinal = new Float32Array([0, 1, 0]);
     resok: boolean = false;
     //camera: Camera = new Camera(this.eyePosFinal, this.targetPosFinal, this.upPosFinal);
-    startMouseX: number;
-    startMouseY: number;
     arcball = new arcball.ArcBall();
     drag:boolean=false;
     arcballRot = quat.create();
@@ -40,15 +38,13 @@ class testMeshRender {
     }
 
     onMouseDown(e:MouseEvent){
-        this.startMouseX = e.layerX;
-        this.startMouseY = e.layerY;
+        this.arcball.setTouchPos(e.layerX,e.layerY);
         this.drag=true;
     }
     onMouseUp(e:MouseEvent){this.drag=false;}
 
     onMouseMove(e:MouseEvent){
         if(this.drag){
-            this.arcball.setTouchPos(this.startMouseX,this.startMouseY);
             this.arcball.dragTo(e.layerX,e.layerY,this.arcballRot);
         }
     }
@@ -119,9 +115,7 @@ testrad:number=0;
             this.material.gpuProgram = this.gpuprog.compile(gl);
 
             var boxb = new meshbuilder.boxBuilder(0.8,0.8,0.8);
-            boxb.sepFace(true);
-            boxb.needUV(true);
-            boxb.needNorm(true);
+            boxb.sepFace(true).needUV(true).needNorm(true);
             var ms = boxb.build();
             this.mesh= ms.mesh;
             this.vertDesc = ms.desc;

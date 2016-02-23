@@ -38,6 +38,10 @@ export class NamedData {
         this.nameLen += name.length + 1;
         this.descNum++;
     }
+    
+    def(desc:{name:string,type:number,num:number}[]){
+        //desc.forEach
+    }
 		
     /**
      * 结构是: short nameid, offset,type,num 

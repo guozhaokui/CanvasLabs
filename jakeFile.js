@@ -51,7 +51,11 @@ task('buildEJAnimTest',[],function(){
 task('webglTest',[],function(){
     compileApps('webglTest');
 });
-task('buildAllApps',['runtime','buildEJAnimTest','webglTest'],function(){
+task('accTest',[],function(){
+    compileApps('accTest');
+});
+
+task('buildAllApps',['runtime','buildEJAnimTest','webglTest','accTest'],function(){
     // ['buildEJAnimTest',
     // 'webglTest'].forEach(function(v,i,arr){
     //     compileApps(v);

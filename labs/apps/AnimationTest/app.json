@@ -1,0 +1,11 @@
+{
+    "name":"AnimationTest",
+    "version":1,
+    "dependencies":{
+        "common":["MemClass"],
+        "runtime":["webglRenderor"],
+        "3rd":["Ease","gl-matrix"]
+    },
+    "stylesheets":[],
+    "main":"AnimationTest"
+}

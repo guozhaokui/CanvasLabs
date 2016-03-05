@@ -7,9 +7,9 @@ import vdesc = require('../../runtime/runtimeMod/webglRenderor/VertexDesc');
 import material = require('../../runtime/runtimeMod/webglRenderor/Material');
 import ndata = require('../../runtime/runtimeMod/webglRenderor/nameddata');
 import arcball = require('../../runtime/runtimeMod/common/ArcBall');
+import headTrack = require('../../runtime/runtimeMod/common/HeadTracker'); 
 import async = require('../../runtime/runtimeMod/common/async');
 import meshbuilder = require('../../runtime/runtimeMod/geometry/buildBox');
-
 
 class testMeshRender {
     gpuprog = new gpuProg.GpuProgram();
@@ -27,6 +27,8 @@ class testMeshRender {
     arcball = new arcball.ArcBall();
     drag:boolean=false;
     arcballRot = quat.create();
+    
+    headTrack = new headTrack.HeadTracker(window);
     
     matobj:Float32Array = mat4.create();
     matCam:Float32Array = mat4.create();
@@ -69,7 +71,6 @@ class testMeshRender {
         this.upPosFinal = new Float32Array([0, 1, 0]);
     }
 
-testrad:number=0;
     onRender(webgl: WebGLRenderingContext) {
         var gl = <renderer.WebGLExt>webgl;
         gl.clearColor(0.8, 0.8, 0.8, 1);
@@ -82,18 +83,14 @@ testrad:number=0;
         var rundtMat2 = new Float32Array(rundata, 16 * 4, 16);
         var eyevec = new Float32Array(rundata, 128, 3);
 
-        if(true)
-            mat4.fromQuat(this.matobj,this.arcballRot);
-        else{
-            mat4.identity(this.matobj);
-            mat4.rotateY(this.matobj,this.matobj,this.testrad+=0.01);
-        }
+        //mat4.fromQuat(this.matobj,this.arcballRot);
+        mat4.copy(this.matobj, this.headTrack.getResult());
         mat4.lookAt(this.matCam, this.eyePosFinal, this.targetPosFinal, this.upPosFinal);
         //顺序好像是先b再a
         mat4.mul(this.matCam,this.matCam,this.matobj);
         rundtMat1.set(this.matCam);
         rundtMat2.set(this.matProj);
-                
+        
         // set light vector = camera direction
         //viewDir = vec3.create();
         //vec3.subtract(eyevec, eyePosFinal, targetPosFinal);

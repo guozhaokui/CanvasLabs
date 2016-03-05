@@ -1,8 +1,10 @@
 ///<reference path="../../defination/gl-matrix.d.ts" />
 'use strict';
 
+var kD2R = 3.1416/180.0;
 
-class HeadTracker{
+export class HeadTracker{
+    matRot:Float32Array=mat4.create();
     constructor(window:Window){
         window.addEventListener('devicemotion',this.onDeviceMotion.bind(this),false)
         window.addEventListener('deviceorientation', this.onDeviceOrientation.bind(this),false);
@@ -14,22 +16,30 @@ class HeadTracker{
         e.rotationRate.alpha;
     }
     
-    onDeviceOrientation(e:DeviceOrientationEvent){
+    onDeviceOrientation(e:DeviceOrientationEvent):void{
         /**
          * alpha 绕着z
          * beta 绕着x
          * gamma 绕着y
          */
+        mat4.identity(this.matRot);
+        mat4.rotateY(this.matRot,this.matRot,e.alpha*kD2R);//向上的轴，y
+        mat4.rotateX(this.matRot,this.matRot,e.beta*kD2R);//俯仰
+        mat4.rotateZ(this.matRot,this.matRot,e.gamma*kD2R);
+        
+        //mat4.fromYRotation(this.matRot,e.alpha*kD2R);
+        /*
         e.alpha;
         e.beta;
         e.gamma;
+        */
     }
     
     /**
      * 返回的是一个四元数
      */
     getResult():Float32Array{
-        return null;
+        return this.matRot;
     }
     
 }

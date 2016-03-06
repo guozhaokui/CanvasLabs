@@ -1,5 +1,5 @@
 ﻿'use strict';
-import vb = require('./vertexBuffer');
+import vb = require('./VertexBuffer');
 type VertexBuffer = vb.VertexBuffer;
 import nd = require('./NamedData');
 type NamedData = nd.NamedData;

@@ -1,12 +1,14 @@
-///<reference path='e:/tsdefination/node/node.d.ts' />
+///<reference path='../runtime/defination/node.d.ts' />
 interface Window {
     hasNodeJS: boolean;
     require:(mod:string)=>Object;
     requireOrig:(mod:string)=>void;
 }
+/*
 interface Document {
     currentScript: HTMLScriptElement;//不知道为什么定义中没有。
 }
+*/
 
 /**
  * 同步加载文本文件
@@ -15,7 +17,7 @@ function loadSyncByXHR(url: string, encode: string): string | ArrayBuffer {
     function isAbs(url: string): boolean {
         return (url.indexOf('http://') === 0);
     }
-    var curfile = document.currentScript.src;
+    var curfile = document['currentScript'].src;
     var lastS = curfile.lastIndexOf('/');
     var hasPath = lastS > 0;
 

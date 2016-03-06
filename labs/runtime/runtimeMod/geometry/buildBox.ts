@@ -1,6 +1,6 @@
 'use strict';
-import mesh = require('../webglRenderor/mesh');
-import vertDesc = require('../webglRenderor/vertexDesc');
+import mesh = require('../webglRenderor/Mesh');
+import vertDesc = require('../webglRenderor/VertexDesc');
 export interface meshRet {
     mesh: mesh.Mesh;
     desc: vertDesc.VertexDesc;

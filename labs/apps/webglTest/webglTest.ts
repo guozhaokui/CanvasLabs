@@ -66,9 +66,14 @@ class testMeshRender {
         gl.enable(gl.BLEND);
         
         mat4.perspective(this.matProj, 3.141593 / 4.0, gl.drawingBufferWidth / gl.drawingBufferHeight, 0.1, 200.0);
+        /*
         this.eyePosFinal = new Float32Array([0, 0, -2]);
         this.targetPosFinal = new Float32Array([0, 0, 1]);
         this.upPosFinal = new Float32Array([0, 1, 0]);
+        */
+        this.eyePosFinal = new Float32Array([0, 0, 2]);
+        this.targetPosFinal = new Float32Array([0, 0, 0]);
+        this.upPosFinal = new Float32Array([1, 0, 0]);
     }
 
     onRender(webgl: WebGLRenderingContext) {

@@ -23,9 +23,15 @@ export class HeadTracker{
          * gamma 绕着y
          */
         mat4.identity(this.matRot);
+        /*
         mat4.rotateY(this.matRot,this.matRot,e.alpha*kD2R);//向上的轴，y
         mat4.rotateX(this.matRot,this.matRot,e.beta*kD2R);//俯仰
         mat4.rotateZ(this.matRot,this.matRot,e.gamma*kD2R);
+        */
+        mat4.rotateZ(this.matRot,this.matRot,e.alpha*kD2R);//向上的轴，z
+        mat4.rotateX(this.matRot,this.matRot,e.beta*kD2R);//俯仰
+        mat4.rotateY(this.matRot,this.matRot,e.gamma*kD2R);
+        mat4.invert(this.matRot,this.matRot);
         
         //mat4.fromYRotation(this.matRot,e.alpha*kD2R);
         /*

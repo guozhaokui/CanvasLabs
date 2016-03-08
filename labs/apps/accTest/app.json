@@ -1,7 +1,7 @@
 {
     "name":"test",
     "version":1,
-    "dependencies":[],//依赖的模块名称
+    "dependencies":[],
     "scripts":[],
     "stylesheets":[],
     "main":"accTest"

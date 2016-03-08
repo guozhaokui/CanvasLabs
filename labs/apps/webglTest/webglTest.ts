@@ -101,6 +101,7 @@ class testMeshRender {
         //vec3.subtract(eyevec, eyePosFinal, targetPosFinal);
 
         gl.renderMesh(this.renderGroup, this.rundata);
+        window.requestAnimationFrame(()=>{this.onRender(webgl)});
     }
 
     async prepareRes(gl:renderer.WebGLExt) {
@@ -141,6 +142,7 @@ class testMeshRender {
 
             this.renderGroup.shaderInfo = gl.bindShaderFetch(this.vertDesc, this.material.gpuProgram, nameddata);
             this.resok = true;
+            window.requestAnimationFrame(()=>{this.onRender(gl)});
         } catch (e) {
             alert(e);
         }
@@ -161,7 +163,8 @@ class testMeshRender {
         var gl = <renderer.WebGLExt>wgl;
         gl.viewport(0, 0, myCanvasObject.width, myCanvasObject.height);
         test1.init(gl);
-        setInterval(() => { test1.onRender(gl); }, 15);    
+        
+        //setInterval(() => { test1.onRender(gl); }, 15);    
     }
 }
 

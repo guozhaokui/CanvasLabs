@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <title>HTML App</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
-    <base id="htmlbase" />
+    <base id="htmlbase" /><!-- 为了在app中方便处理图片url  -->
     <script>
         window.hasNodeJS = navigator.userAgent.indexOf('Electron') > 0;
     </script>
@@ -21,6 +21,7 @@
     </div>
     <script type="text/javascript">
         startApp('webglTest');
+        //startApp('accTest');
     </script>
 </body>
 

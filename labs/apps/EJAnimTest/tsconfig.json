@@ -5,6 +5,7 @@
         "noImplicitAny": false,
         "rootDir": ".",
         "sourceMap": false,
+        "removeComments": true,
         "outFile": "EJAnimTest.js"
     },
     "exclude": [

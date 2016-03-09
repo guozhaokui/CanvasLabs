@@ -5,10 +5,10 @@ import gpuProg = require('../../runtime/runtimeMod/webglRenderor/GpuProgram');
 import mesh = require('../../runtime/runtimeMod/webglRenderor/Mesh');
 import vdesc = require('../../runtime/runtimeMod/webglRenderor/VertexDesc');
 import material = require('../../runtime/runtimeMod/webglRenderor/Material');
-import ndata = require('../../runtime/runtimeMod/webglRenderor/nameddata');
+import ndata = require('../../runtime/runtimeMod/webglRenderor/NamedData');
 import arcball = require('../../runtime/runtimeMod/common/ArcBall');
 import headTrack = require('../../runtime/runtimeMod/common/HeadTracker'); 
-import async = require('../../runtime/runtimeMod/common/async');
+import async = require('../../runtime/runtimeMod/common/Async');
 import meshbuilder = require('../../runtime/runtimeMod/geometry/buildBox');
 
 class testMeshRender {

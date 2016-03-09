@@ -18,9 +18,9 @@ export class Material {
     gpuProgram: WebGLProgram = null;		//分组判定的时候，需要考虑这个。
     materialData: ArrayBuffer = null;// new ArrayBuffer(60);				
     alpha_: Float32Array;	//4
-    blendType_: Float32Array; //4
+    blendType_: Uint32Array; //4
     filterData: Float32Array//16;
-    enableZ_: Float32Array//4
+    enableZ_: Uint32Array;//4
     color: Float32Array//16
     shaderParam1: Float32Array //16
     nKey: number = 0;

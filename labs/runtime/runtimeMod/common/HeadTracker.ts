@@ -11,6 +11,11 @@ export class HeadTracker{
         window.addEventListener('deviceorientation', this.onDeviceOrientation.bind(this),false);
     }
     
+    //设置身高
+    setHeight(h:number){
+        
+    }
+    
     onDeviceMotion(e:DeviceMotionEvent){
         var SHAKE_THRESHOLD=100;
         e.acceleration.x;
@@ -35,6 +40,13 @@ export class HeadTracker{
      */
     getResult():Float32Array{
         return this.matRotInv;
+    }
+    
+    /**
+     * 
+     */
+    getViewMat():Float32Array{
+       return null; 
     }
     
 }

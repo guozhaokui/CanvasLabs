@@ -31,6 +31,10 @@ function compileApps(name){
         compileDir('labs/apps/'+name);
 }
 
+task('runtimeMod',[],function(){
+    compileDir('labs/runtime/runtimeMod');
+});
+/*
 task('webglRenderor',[],function(){
     compileDir('labs/runtime/runtimeMod/webglRenderor');
 });
@@ -40,7 +44,8 @@ task('common',[],function(){
 task('geometry',[],function(){
     compileDir('labs/runtime/runtimeMod/geometry');
 })
-task('runtime',['webglRenderor','common','geometry'],function(){});
+*/
+task('runtime',['runtimeMod'],function(){});
 
 task('buildLoader',[],function(){
     compileDir('labs/apploader');

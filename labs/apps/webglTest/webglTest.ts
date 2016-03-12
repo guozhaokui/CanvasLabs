@@ -11,13 +11,19 @@ import headTrack = require('../../runtime/runtimeMod/common/HeadTracker');
 import async = require('../../runtime/runtimeMod/common/Async');
 import meshbuilder = require('../../runtime/runtimeMod/geometry/buildBox');
 
+interface MyRunData{
+    mat1:Float32Array,
+    mat2:Float32Array
+}
+
 class testMeshRender {
     gpuprog = new gpuProg.GpuProgram();
     mesh = new mesh.Mesh();
     material = new material.Material();
     renderGroup = new renderer.RenderGroup();
     texture:WebGLTexture = null;
-    rundata: Array<ArrayBuffer> = [null, null];
+    rundata: ArrayBuffer[] = [null, null];
+    //rundata:ndata.NamedData=null; 
     eyePosFinal = new Float32Array([0, 0, -2]);
     targetPosFinal = new Float32Array([0, 0, 1]);
     upPosFinal = new Float32Array([0, 1, 0]);
@@ -123,8 +129,6 @@ class testMeshRender {
             runDt.add("g_worldmatrix", 0, ndata.NamedData.tp_mat4, 1);
             runDt.add("g_persmat", 64, ndata.NamedData.tp_mat4, 1);
 
-            var nameddata: Array<ndata.NamedData> = [this.material.getNamedData(), runDt];
-
             this.material.alpha = 1.0;
             this.material.blendType = 0;
             this.material.enableZ = 1;
@@ -137,7 +141,7 @@ class testMeshRender {
             this.renderGroup.mesh = this.mesh;
             this.renderGroup.material = this.material;
 
-            this.renderGroup.shaderInfo = gl.bindShaderFetch(this.mesh.vd, this.material.gpuProgram, nameddata);
+            this.renderGroup.shaderInfo = gl.bindShaderFetch(this.mesh.vd, this.material.gpuProgram, [this.material.getNamedData(), runDt]);
             this.resok = true;
             window.requestAnimationFrame(()=>{this.onRender(gl)});
         } catch (e) {

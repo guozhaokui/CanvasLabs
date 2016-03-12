@@ -1,4 +1,6 @@
 ﻿'use strict';
+var TypeSize = new Map();
+
 export class VertexDesc {
     /**
      * 下面的定义要与gl相同。
@@ -24,18 +26,41 @@ export class VertexDesc {
     static FLOAT_MAT2: number = 0x8B5A;
     static FLOAT_MAT3: number = 0x8B5B;
     static FLOAT_MAT4: number = 0x8B5C;
-		
+
+    vertnum: number = 0;
     //为了转换方便的变量
     descNum: number = 0;
     descData: Array<number> = new Array();
     nameData: Array<string> = new Array();
     nameLen: number = 0;
 
-    constructor() {
+    constructor(vertnum?:number,obj?:Object[]) {
+        if(vertnum && obj){
+            this.initByObject(vertnum,obj);
+        }
         this.descData.push(0);			//这个表示个数。
         this.descData.push(0);			//vertdesc的实际长度。因为可能会对齐
     }
-		
+
+    /**
+     * @param off 是在buffer中的偏移，一般在多流的情况下使用
+     */
+    initByObject(vertnum: number, objs: Object[]) {
+        this.vertnum=vertnum;
+        var soff=0;
+        for (var oi = 0; oi < objs.length; oi++) {
+            var cobj = objs[oi];
+            var vertsz = 0;
+            for (var name in cobj) {
+                var type: number = cobj[name];
+                this.add(<string>name, type, soff + vertsz,oi);
+                var sz = TypeSize.get(type); if (!sz) throw 'unknown type![' + type + ']';
+                vertsz += sz;
+            }
+            soff+=vertnum*vertsz;
+        }
+    }
+
     //var strDesc:string  = '';
     add(name: string, type: number, offset: number, streamid: number): void {
         //this[name] = { 'attribName':name, 'type':type, 'offset':offset, 'streamID':streamid }
@@ -75,3 +100,24 @@ export class VertexDesc {
          */
     }
 }
+
+TypeSize.set(VertexDesc.BYTE, 1);
+TypeSize.set(VertexDesc.UNSIGNED_BYTE, 1);
+TypeSize.set(VertexDesc.SHORT, 2);
+TypeSize.set(VertexDesc.UNSIGNED_SHORT, 2);
+TypeSize.set(VertexDesc.INT, 4);
+TypeSize.set(VertexDesc.UNSIGNED_INT, 4);
+TypeSize.set(VertexDesc.FLOAT, 4);
+TypeSize.set(VertexDesc.FLOAT_VEC2, 8);
+TypeSize.set(VertexDesc.FLOAT_VEC3, 12);
+TypeSize.set(VertexDesc.FLOAT_VEC4, 16);
+TypeSize.set(VertexDesc.INT_VEC2, 8);
+TypeSize.set(VertexDesc.INT_VEC3, 12);
+TypeSize.set(VertexDesc.INT_VEC4, 16);
+TypeSize.set(VertexDesc.BOOL, 1);
+TypeSize.set(VertexDesc.BOOL_VEC2, 2);
+TypeSize.set(VertexDesc.BOOL_VEC3, 3);
+TypeSize.set(VertexDesc.BOOL_VEC4, 4);
+TypeSize.set(VertexDesc.FLOAT_MAT2, 16);
+TypeSize.set(VertexDesc.FLOAT_MAT3, 36);
+TypeSize.set(VertexDesc.FLOAT_MAT4, 64);

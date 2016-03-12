@@ -1,10 +1,12 @@
 'use strict';
 import mesh = require('../webglRenderor/Mesh');
 import vertDesc = require('../webglRenderor/VertexDesc');
-export interface meshRet {
-    mesh: mesh.Mesh;
-    desc: vertDesc.VertexDesc;
+import geobase = require('./geometryBase');
+
+export class geoBox extends geobase.geometryBase {
+
 }
+
 /*
     w x轴的长度，屏幕左右
     l y轴的长度，屏幕里外
@@ -24,10 +26,10 @@ export class boxBuilder {
         this.w = w; this.l = l; this.h = h;
     }
     //每个面是独立的
-    sepFace(b: boolean):boxBuilder { this.bSepFace = b; return this;}
-    needUV(b: boolean):boxBuilder { this.bUV = b; return this; }
-    needNorm(b: boolean):boxBuilder { this.bNorm = b; return this; }
-    build(): meshRet {
+    sepFace(b: boolean): boxBuilder { this.bSepFace = b; return this; }
+    needUV(b: boolean): boxBuilder { this.bUV = b; return this; }
+    needNorm(b: boolean): boxBuilder { this.bNorm = b; return this; }
+    build(): mesh.Mesh {
         var sz = 12;
         sz += this.bUV ? 8 : 0;
         sz += this.bNorm ? 12 : 0;
@@ -54,7 +56,7 @@ export class boxBuilder {
         ];
         ms.setVertData(vert0, 0);
         ms.setVertData([1.0, 1.0, .0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0], 1);	//alpha
-			
+
         ms.getIB().getMemBuffer(0).fromShortArray([
             0, 1, 2, 2, 3, 0,
             0 + 4 * 1, 1 + 4 * 1, 2 + 4 * 1, 2 + 4 * 1, 3 + 4 * 1, 0 + 4 * 1,
@@ -64,13 +66,21 @@ export class boxBuilder {
             0 + 4 * 5, 1 + 4 * 5, 2 + 4 * 5, 2 + 4 * 5, 3 + 4 * 5, 0 + 4 * 5,
         ]);
 
-        var vertexDesc = new vertDesc.VertexDesc();
-        vertexDesc.add('g_Position', WebGLRenderingContext.FLOAT_VEC3, 0, 0);
-        vertexDesc.add('g_TexCoord0', WebGLRenderingContext.FLOAT_VEC2, 3 * 4, 0);
-        vertexDesc.add('g_Normal', WebGLRenderingContext.FLOAT_VEC3, 5 * 4, 0);
-        vertexDesc.add('g_alpha', WebGLRenderingContext.FLOAT, 32 * vertnum, 1);
-
-        return { mesh: ms, desc: vertexDesc };
+        var VertexDesc = vertDesc.VertexDesc;
+        var vd = new VertexDesc(
+            vertnum,
+            [
+                { 
+                    g_Position: VertexDesc.FLOAT_VEC3, 
+                    g_TexCoord0: VertexDesc.FLOAT_VEC2, 
+                    g_Normal: VertexDesc.FLOAT_VEC3 
+                },
+                { 
+                    g_alpha: VertexDesc.FLOAT 
+                }
+            ]);
+        ms.vd = vd;
+        return ms;
     }
 }
 

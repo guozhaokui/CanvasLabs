@@ -14,7 +14,6 @@ import meshbuilder = require('../../runtime/runtimeMod/geometry/buildBox');
 class testMeshRender {
     gpuprog = new gpuProg.GpuProgram();
     mesh = new mesh.Mesh();
-    vertDesc = new vdesc.VertexDesc();
     material = new material.Material();
     renderGroup = new renderer.RenderGroup();
     texture:WebGLTexture = null;
@@ -119,9 +118,7 @@ class testMeshRender {
 
             var boxb = new meshbuilder.boxBuilder(0.8,0.8,0.8);
             boxb.sepFace(true).needUV(true).needNorm(true);
-            var ms = boxb.build();
-            this.mesh= ms.mesh;
-            this.vertDesc = ms.desc;
+            this.mesh = boxb.build();
             var runDt = new ndata.NamedData();
             runDt.add("g_worldmatrix", 0, ndata.NamedData.tp_mat4, 1);
             runDt.add("g_persmat", 64, ndata.NamedData.tp_mat4, 1);
@@ -140,7 +137,7 @@ class testMeshRender {
             this.renderGroup.mesh = this.mesh;
             this.renderGroup.material = this.material;
 
-            this.renderGroup.shaderInfo = gl.bindShaderFetch(this.vertDesc, this.material.gpuProgram, nameddata);
+            this.renderGroup.shaderInfo = gl.bindShaderFetch(this.mesh.vd, this.material.gpuProgram, nameddata);
             this.resok = true;
             window.requestAnimationFrame(()=>{this.onRender(gl)});
         } catch (e) {

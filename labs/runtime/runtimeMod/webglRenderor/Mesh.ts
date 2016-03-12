@@ -1,11 +1,13 @@
 ﻿'use strict';
 import vb = require("./VertexBuffer");
 import membuf = require('../common/MemClass');
+import vd = require('./VertexDesc');
 export class Mesh {
     vb: vb.VertexBuffer = null;
     ib: vb.VertexBuffer = null;
     vertNum: number = 0;
     idxNum: number = 0;
+    vd:vd.VertexDesc;
 
     constructor() { }
 

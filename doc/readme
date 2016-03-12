@@ -1,15 +1,4 @@
 
 ##version 1.0.0
-这是基于本地文件的，不需要webserver
-
-app和runtime都是基于模块的。
-loader可以使用runtime的模块。
-模块的依赖性
-    只能以模块为单位进行依赖。
-    每个模块或者app最终都是生成一个单独的js
-    
-app
-
-runtime
-    模块之间可以有依赖性，但是必须指明。
-    
+    可以在electron和浏览器中跑。
+    通过require来引用其他文件    

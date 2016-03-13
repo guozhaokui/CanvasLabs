@@ -13,8 +13,8 @@ import meshbuilder = require('../../runtime/runtimeMod/geometry/buildBox');
 
 var NamedData = ndata.NamedData;
 interface MyRunData extends ndata.JSRunData{
-    matCamObj:Float32Array,
-    matProj:Float32Array
+    g_worldmatrix:Float32Array,//TODO 现在必须与定义的时候的name一致
+    g_persmat:Float32Array
 }
 
 class testMeshRender {
@@ -96,18 +96,15 @@ class testMeshRender {
         if (!this.resok)
             return;
 
-        var rundata = this.rundata[1];
-        var rundtMat1 = new Float32Array(rundata, 0, 16);
-        var rundtMat2 = new Float32Array(rundata, 16 * 4, 16);
         //var eyevec = new Float32Array(rundata, 128, 3);
 
         mat4.fromQuat(this.matobj,this.arcballRot);
         //mat4.copy(this.matobj, this.headTrack.getResult());
         mat4.lookAt(this.matCam, this.eyePosFinal, this.targetPosFinal, this.upPosFinal);
         //顺序好像是先b再a
-        mat4.mul(rundtMat1,this.matCam,this.matobj);
+        mat4.mul(this.rundataJS.g_worldmatrix,this.matCam,this.matobj);
         //rundtMat1.set(this.matCam);
-        rundtMat2.set(this.matProj);
+        this.rundataJS.g_persmat.set(this.matProj);
         
         // set light vector = camera direction
         //viewDir = vec3.create();
@@ -133,10 +130,6 @@ class testMeshRender {
             var boxb = new meshbuilder.boxBuilder(0.8,0.8,0.8);
             boxb.sepFace(true).needUV(true).needNorm(true);
             this.mesh = boxb.build();
-            var runDt = new NamedData();
-            runDt.add("g_worldmatrix", 0, NamedData.tp_mat4, 1);
-            runDt.add("g_persmat", 64, NamedData.tp_mat4, 1);
-
             this.material.alpha = 1.0;
             this.material.blendType = 0;
             this.material.enableZ = 1;
@@ -149,7 +142,7 @@ class testMeshRender {
             this.renderGroup.mesh = this.mesh;
             this.renderGroup.material = this.material;
 
-            this.renderGroup.shaderInfo = gl.bindShaderFetch(this.mesh.vd, this.material.gpuProgram, [this.material.getNamedData(), runDt]);
+            this.renderGroup.shaderInfo = gl.bindShaderFetch(this.mesh.vd, this.material.gpuProgram, [this.material.getNamedData(), this.rundataDesc]);
             this.resok = true;
             window.requestAnimationFrame(()=>{this.onRender(gl)});
         } catch (e) {

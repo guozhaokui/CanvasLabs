@@ -131,17 +131,12 @@ class testMeshRender {
     
     static main(window){
         var test1 = new testMeshRender();
-        //window.addEventListener('mousedown', (e) => { test1.onMouseEvt(e); });
         
         var el = document.getElementById('content');
         var myCanvasObject:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('myCanvas');
         var wgl:WebGLRenderingContext = <WebGLRenderingContext> myCanvasObject.getContext("webgl", { antialias: false });
-        renderer.Renderer.initGlExt(wgl);
-        var gl = <renderer.WebGLExt>wgl;
-        gl.viewport(0, 0, myCanvasObject.width, myCanvasObject.height);
-        test1.init(gl);
-        
-        //setInterval(() => { test1.onRender(gl); }, 15);    
+        wgl.viewport(0, 0, myCanvasObject.width, myCanvasObject.height);
+        test1.init(wgl);
     }
 }
 

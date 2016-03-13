@@ -11,9 +11,10 @@ import headTrack = require('../../runtime/runtimeMod/common/HeadTracker');
 import async = require('../../runtime/runtimeMod/common/Async');
 import meshbuilder = require('../../runtime/runtimeMod/geometry/buildBox');
 
-interface MyRunData{
-    mat1:Float32Array,
-    mat2:Float32Array
+var NamedData = ndata.NamedData;
+interface MyRunData extends ndata.JSRunData{
+    matCamObj:Float32Array,
+    matProj:Float32Array
 }
 
 class testMeshRender {
@@ -24,6 +25,8 @@ class testMeshRender {
     texture:WebGLTexture = null;
     rundata: ArrayBuffer[] = [null, null];
     //rundata:ndata.NamedData=null; 
+    rundataDesc=new NamedData();        //rundata描述
+    rundataJS:MyRunData = null;         //rundata实例
     eyePosFinal = new Float32Array([0, 0, -2]);
     targetPosFinal = new Float32Array([0, 0, 1]);
     upPosFinal = new Float32Array([0, 1, 0]);
@@ -40,8 +43,13 @@ class testMeshRender {
     matProj:Float32Array = mat4.create();
     
     constructor() {
+        this.rundataDesc
+            .add("g_worldmatrix", 0, NamedData.tp_mat4, 1)
+            .add("g_persmat", 64, NamedData.tp_mat4, 1);
+        this.rundataJS = <MyRunData>this.rundataDesc.createDataInstance();
+        
         this.rundata[0] = this.material.getRunData();
-        this.rundata[1] = new ArrayBuffer(256);
+        this.rundata[1] = this.rundataJS.getAB();
     }
 
     onMouseDown(e:MouseEvent){
@@ -91,14 +99,14 @@ class testMeshRender {
         var rundata = this.rundata[1];
         var rundtMat1 = new Float32Array(rundata, 0, 16);
         var rundtMat2 = new Float32Array(rundata, 16 * 4, 16);
-        var eyevec = new Float32Array(rundata, 128, 3);
+        //var eyevec = new Float32Array(rundata, 128, 3);
 
-        //mat4.fromQuat(this.matobj,this.arcballRot);
-        mat4.copy(this.matobj, this.headTrack.getResult());
+        mat4.fromQuat(this.matobj,this.arcballRot);
+        //mat4.copy(this.matobj, this.headTrack.getResult());
         mat4.lookAt(this.matCam, this.eyePosFinal, this.targetPosFinal, this.upPosFinal);
         //顺序好像是先b再a
-        mat4.mul(this.matCam,this.matCam,this.matobj);
-        rundtMat1.set(this.matCam);
+        mat4.mul(rundtMat1,this.matCam,this.matobj);
+        //rundtMat1.set(this.matCam);
         rundtMat2.set(this.matProj);
         
         // set light vector = camera direction
@@ -125,9 +133,9 @@ class testMeshRender {
             var boxb = new meshbuilder.boxBuilder(0.8,0.8,0.8);
             boxb.sepFace(true).needUV(true).needNorm(true);
             this.mesh = boxb.build();
-            var runDt = new ndata.NamedData();
-            runDt.add("g_worldmatrix", 0, ndata.NamedData.tp_mat4, 1);
-            runDt.add("g_persmat", 64, ndata.NamedData.tp_mat4, 1);
+            var runDt = new NamedData();
+            runDt.add("g_worldmatrix", 0, NamedData.tp_mat4, 1);
+            runDt.add("g_persmat", 64, NamedData.tp_mat4, 1);
 
             this.material.alpha = 1.0;
             this.material.blendType = 0;

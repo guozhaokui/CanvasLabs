@@ -1,7 +1,7 @@
 ﻿///<reference path="../../defination/gl-matrix.d.ts" />
 'use strict';
 
-export class ArcBall {
+export class _ArcBall {
     private xs: number;  //用来把屏幕坐标缩放到[-1,1]的
     private ys: number;
     private lastPos: Float32Array = null;//上次的点的位置，是已经规格化的了
@@ -65,10 +65,10 @@ export class ArcBall {
         // vec3.add(this.halfPos, this.lastPos, this.curPos);
         // vec3.normalize(this.halfPos, this.halfPos);
         // this.quatFromUnitV2V(this.newQuat, this.lastPos, this.halfPos);  //这个函数好像有问题。
-        quat.rotationTo(this.newQuat,this.lastPos,this.curPos);
-        quat.mul(out,this.newQuat,this.curQuat);
-        quat.copy(this.curQuat,out);
-        vec3.copy(this.lastPos,this.curPos);
+        quat.rotationTo(this.newQuat, this.lastPos, this.curPos);
+        quat.mul(out, this.newQuat, this.curQuat);
+        quat.copy(this.curQuat, out);
+        vec3.copy(this.lastPos, this.curPos);
     }
     /*
         返回的是一个quat
@@ -77,3 +77,29 @@ export class ArcBall {
         return quat.create();
     }
 }
+
+/**
+ * 能处理window消息的_ArcBall
+ */
+export class ArcBall extends _ArcBall {
+    drag: boolean = false;
+    quatResult = quat.create();
+    constructor(window: Window) {
+        super();
+        window.addEventListener('mousedown', (e) => { this.onMouseDown(e); });
+        window.addEventListener('mousemove', (e) => { this.onMouseMove(e); });
+        window.addEventListener('mouseup', (e) => { this.onMouseUp(e); });
+    }
+    onMouseDown(e: MouseEvent) {
+        this.setTouchPos(e.layerX, e.layerY);
+        this.drag = true;
+    }
+    onMouseUp(e: MouseEvent) { this.drag = false; }
+
+    onMouseMove(e: MouseEvent) {
+        if (this.drag) {
+            this.dragTo(e.layerX, e.layerY, this.quatResult);
+        }
+    }
+
+} 

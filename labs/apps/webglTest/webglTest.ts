@@ -20,48 +20,36 @@ interface MyRunData extends ndata.JSRunData{
 class testMeshRender {
     gpuprog = new gpuProg.GpuProgram();
     mesh = new mesh.Mesh();
-    material = new material.Material();
     renderGroup = new renderer.RenderGroup();
+    
     texture:WebGLTexture = null;
-    rundata: ArrayBuffer[] = [null, null];
-    //rundata:ndata.NamedData=null; 
+    
     rundataDesc=new NamedData();        //rundata描述
-    rundataJS:MyRunData = null;         //rundata实例
+    rundata:MyRunData = null;         //rundata实例
+    material = new material.Material();
+    rundatas: ArrayBuffer[] = [null, null];
+    
     eyePosFinal = new Float32Array([0, 0, -2]);
     targetPosFinal = new Float32Array([0, 0, 1]);
     upPosFinal = new Float32Array([0, 1, 0]);
+    
     resok: boolean = false;
     //camera: Camera = new Camera(this.eyePosFinal, this.targetPosFinal, this.upPosFinal);
-    arcball = new arcball.ArcBall();
-    drag:boolean=false;
-    arcballRot = quat.create();
+    arcball = new arcball.ArcBall(window);
     
     headTrack = new headTrack.HeadTracker(window);
     
     matobj:Float32Array = mat4.create();
     matCam:Float32Array = mat4.create();
-    matProj:Float32Array = mat4.create();
     
     constructor() {
         this.rundataDesc
             .add("g_worldmatrix", 0, NamedData.tp_mat4, 1)
             .add("g_persmat", 64, NamedData.tp_mat4, 1);
-        this.rundataJS = <MyRunData>this.rundataDesc.createDataInstance();
+        this.rundata = <MyRunData>this.rundataDesc.createDataInstance();
         
-        this.rundata[0] = this.material.getRunData();
-        this.rundata[1] = this.rundataJS.getAB();
-    }
-
-    onMouseDown(e:MouseEvent){
-        this.arcball.setTouchPos(e.layerX,e.layerY);
-        this.drag=true;
-    }
-    onMouseUp(e:MouseEvent){this.drag=false;}
-
-    onMouseMove(e:MouseEvent){
-        if(this.drag){
-            this.arcball.dragTo(e.layerX,e.layerY,this.arcballRot);
-        }
+        this.rundatas[0] = this.material.getRunData();
+        this.rundatas[1] = this.rundata.getAB();
     }
 
     init(webgl: WebGLRenderingContext) {
@@ -78,12 +66,7 @@ class testMeshRender {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
         
-        mat4.perspective(this.matProj, 3.141593 / 4.0, gl.drawingBufferWidth / gl.drawingBufferHeight, 0.1, 200.0);
-        /*
-        this.eyePosFinal = new Float32Array([0, 0, -2]);
-        this.targetPosFinal = new Float32Array([0, 0, 1]);
-        this.upPosFinal = new Float32Array([0, 1, 0]);
-        */
+        mat4.perspective(this.rundata.g_persmat, 3.141593 / 4.0, gl.drawingBufferWidth / gl.drawingBufferHeight, 0.1, 200.0);
         this.eyePosFinal = new Float32Array([0, 0, 2]);
         this.targetPosFinal = new Float32Array([0, 0, 0]);
         this.upPosFinal = new Float32Array([1, 0, 0]);
@@ -96,21 +79,17 @@ class testMeshRender {
         if (!this.resok)
             return;
 
-        //var eyevec = new Float32Array(rundata, 128, 3);
-
-        mat4.fromQuat(this.matobj,this.arcballRot);
+        mat4.fromQuat(this.matobj,this.arcball.quatResult);
         //mat4.copy(this.matobj, this.headTrack.getResult());
         mat4.lookAt(this.matCam, this.eyePosFinal, this.targetPosFinal, this.upPosFinal);
         //顺序好像是先b再a
-        mat4.mul(this.rundataJS.g_worldmatrix,this.matCam,this.matobj);
-        //rundtMat1.set(this.matCam);
-        this.rundataJS.g_persmat.set(this.matProj);
+        mat4.mul(this.rundata.g_worldmatrix,this.matCam,this.matobj);
         
         // set light vector = camera direction
         //viewDir = vec3.create();
         //vec3.subtract(eyevec, eyePosFinal, targetPosFinal);
 
-        gl.renderMesh(this.renderGroup, this.rundata);
+        gl.renderMesh(this.renderGroup, this.rundatas);
         window.requestAnimationFrame(()=>{this.onRender(webgl)});
     }
 
@@ -153,10 +132,6 @@ class testMeshRender {
     static main(window){
         var test1 = new testMeshRender();
         //window.addEventListener('mousedown', (e) => { test1.onMouseEvt(e); });
-        window.addEventListener('mousedown', (e) => { test1.onMouseDown(e); });
-        window.addEventListener('mousemove', (e) => { test1.onMouseMove(e); });
-        window.addEventListener('mouseup', (e) => { test1.onMouseUp(e); });
-
         
         var el = document.getElementById('content');
         var myCanvasObject:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('myCanvas');

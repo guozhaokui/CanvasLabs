@@ -152,7 +152,9 @@ function setupRequire(){
     var basepath = url2path(window.location.href);
     window.require = window.requireOrig.bind({ dir: basepath, file: null })    
 }
-setupRequire();
+
+if(!window.hasNodeJS)
+    setupRequire();
 
 function myrequire(mod:string){
     var fc = loadSyncByXHR(mod,'utf8');

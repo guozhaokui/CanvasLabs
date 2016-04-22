@@ -10,6 +10,55 @@ interface Document {
 }
 */
 
+class simpURI{
+    scheme='';
+    host='';
+    path='';
+    file='';
+    query='';
+    constructor(uri:string){
+        var sp = uri.indexOf('://');
+        var left =uri;
+        if(sp>0){
+            this.scheme = uri.substr(0,sp);
+            left = uri.substr(sp+3);
+        }
+        var hp = left.indexOf('/');
+        if(hp>0){
+            this.host = left.substr(0,hp);
+            left = left.substr(hp);//不能+1，保留根
+        }
+        var qp = left.indexOf('?');
+        if(qp>0){
+            this.query = left.substr(qp+1);
+            left = left.substr(0,qp);
+        }
+        var pathes = left.split('/');
+        //normalize
+        var npathes:string[]=[];
+        for(var i=0; i<pathes.length; i++){
+            if(pathes[i]==='..'){
+                npathes.pop();
+                continue;
+            }
+            if(pathes[i]==='.')continue;
+            npathes.push(pathes[i]);                
+        }
+        this.path=npathes.join('/');
+    }
+    toString():string{
+        var s='';
+        if(this.scheme.length)
+            s+=this.scheme+'://';
+        s+=this.host+this.path;
+        if( this.query.length){
+            s+='?'+this.query;
+        }
+        return s;
+    }
+    
+}
+
 /**
  * 同步加载文本文件
  */
@@ -80,26 +129,25 @@ function setupRequire(){
             file += '.js';
         //简化：只处理相对路径        
         var modfile = this.dir ? (this.dir + '/' + file):file;         
-        var extfunc = null;
+        modfile=new simpURI(modfile).toString();
         console.log('require(' + modfile + ')');
-        var reqresult = mcache[modfile] ||
-            (extfunc = evalreq(<string>loadSyncByXHR(modfile, 'utf8'), modfile));
+        var extfunc = mcache[modfile] ||
+            evalreq(<string>loadSyncByXHR(modfile, 'utf8'), modfile);
         if (extfunc) {
             mod.dir = url2path(modfile);/*使用window的或者当前模块的*/
             mod.file = modfile;
         }
-        if (!reqresult) {
+        else{
             throw ('require failed：' + file);
-            return null;
+            //return null;
         }
         try {
-            var ret = reqresult({}, window, window.requireOrig.bind(mod), mod.dir, mod.file);
+            var ret = extfunc({}, window, window.requireOrig.bind(mod), mod.dir, mod.file);
             return ret;
         }
         catch (e) {
             throw 'eval script error in require:\n ' + file + '\n' + e.stack;
         }
-        return null;
     }
     var basepath = url2path(window.location.href);
     window.require = window.requireOrig.bind({ dir: basepath, file: null })    
@@ -119,7 +167,7 @@ function loadTextFile(url:string) {
 }
 
 function startApp(app: string): void {
-    var appPath = (window.hasNodeJS?this.__dirname:'') + '/labs/apps/' + app;
+    var appPath = (window.hasNodeJS?this.__dirname:'') + 'labs/apps/' + app;
     var appJson = appPath + '/app.json';
     var appcnfg = loadTextFile(appJson);
     

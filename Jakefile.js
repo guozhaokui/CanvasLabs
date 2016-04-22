@@ -50,6 +50,10 @@ task('runtime',['runtimeMod'],function(){});
 task('buildLoader',[],function(){
     compileDir('labs/apploader');
 });
+task('allapp',[],function(){
+    compileDir('labs/apps');
+});
+/*
 task('buildEJAnimTest',[],function(){
     compileApps('EJAnimTest');
 });
@@ -59,8 +63,12 @@ task('webglTest',[],function(){
 task('accTest',[],function(){
     compileApps('accTest');
 });
+task('accTest',[],function(){
+    compileApps('accTest');
+});
+*/
 
-task('buildAllApps',['runtime','buildEJAnimTest','webglTest','accTest'],function(){
+task('buildAllApps',['runtime','allapp'],function(){
     // ['buildEJAnimTest',
     // 'webglTest'].forEach(function(v,i,arr){
     //     compileApps(v);

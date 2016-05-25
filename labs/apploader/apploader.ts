@@ -1,4 +1,5 @@
 ///<reference path='../runtime/defination/node.d.ts' />
+'use strict'
 interface Window {
     hasNodeJS: boolean;
     require:(mod:string)=>Object;
@@ -169,7 +170,7 @@ function loadTextFile(url:string) {
 }
 
 function startApp(app: string): void {
-    var appPath = (window.hasNodeJS?this.__dirname:'') + 'labs/apps/' + app;
+    var appPath = (window.hasNodeJS?(window.__dirname+'/'):'') + 'labs/apps/' + app;
     var appJson = appPath + '/app.json';
     var appcnfg = loadTextFile(appJson);
     

@@ -65,7 +65,6 @@ class testMeshRender {
         //gl.enable(gl.ALPHA_TEST);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         gl.enable(gl.BLEND);
-        
         mat4.perspective(this.rundata.g_persmat, 3.141593 / 4.0, gl.drawingBufferWidth / gl.drawingBufferHeight, 0.1, 200.0);
         this.eyePosFinal = new Float32Array([0, 0, 2]);
         this.targetPosFinal = new Float32Array([0, 0, 0]);

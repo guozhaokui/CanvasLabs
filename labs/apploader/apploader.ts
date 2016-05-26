@@ -170,7 +170,7 @@ function loadTextFile(url:string) {
 }
 
 function startApp(app: string): void {
-    var appPath = (window.hasNodeJS?(window.__dirname+'/'):'') + 'labs/apps/' + app;
+    var appPath = (window.hasNodeJS?(window['__dirname']+'/'):'') + 'labs/apps/' + app;
     var appJson = appPath + '/app.json';
     var appcnfg = loadTextFile(appJson);
     
@@ -184,5 +184,10 @@ function startApp(app: string): void {
     mainjs = appPath + '/' + mainjs;
     var base = <HTMLBaseElement>document.getElementById("htmlbase");
     base.href = appPath + '/';
-    require(mainjs);
+    var exp:{ main?:(canv:HTMLCanvasElement)=>void} = require(mainjs);
+    if(exp && exp.main){
+        var el = document.getElementById('content');
+        var canv:HTMLCanvasElement = <HTMLCanvasElement> document.getElementById('myCanvas');
+        exp.main(canv);
+    }
 }

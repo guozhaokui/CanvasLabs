@@ -1,5 +1,7 @@
 ///<reference path="../../runtime/defination/gl-matrix.d.ts" />
 'use strict'
+import FPS2D = require('../../runtime/runtimeMod/common/FPS2D');
+
 function startAnimation(renderFunc: () => void) {
     function _render() {
         renderFunc();
@@ -8,43 +10,7 @@ function startAnimation(renderFunc: () => void) {
     window.requestAnimationFrame(_render);
 }
 
-var updateFPS: (ctx: CanvasRenderingContext2D) => void = (function () {
-    var lasttm = 0;
-    var fpsdata=new Int32Array(100);
-    var stpos=0;
-    var rect=new Int32Array([2,2,100,30]);
-    function updateFPS(ctx: CanvasRenderingContext2D) {
-        var curtm = Date.now();
-        ctx.save();
-        ctx.globalAlpha = 0.5;
-        ctx.fillStyle = '#331111';
-        ctx.fillRect(rect[0], rect[1],rect[2],rect[3]);
-        var dt = curtm - lasttm;
-        fpsdata[stpos]=dt;
-        stpos=(++stpos)%100;
-        lasttm = curtm;
-        var fps = Math.floor(1000 / dt);
-        ctx.beginPath();
-        //画曲线
-        ctx.strokeStyle='#ff0000';
-        var cx=0;
-        ctx.moveTo(0,0);
-        for(var x = stpos; x<100; x++){
-            ctx.lineTo(cx++,rect[3]-fpsdata[x]);
-        }
-        for(var x=0;x<=stpos;x++){
-            ctx.lineTo(cx++,rect[3]-fpsdata[x]);
-        }
-        ctx.stroke();
-        ctx.font = '16px Arial';
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText('FPS:' + fps, 4, 20);
-        ctx.restore();
-    }
-    return updateFPS;
-})();
-
+var updateFPS = new FPS2D.FPS2D().updateFPS;
 
 class CanvasTest {
     left: HTMLDivElement;
@@ -54,36 +20,56 @@ class CanvasTest {
     canv: HTMLCanvasElement = null;
     ctx: CanvasRenderingContext2D = null;
     img: HTMLImageElement = null;
-    constructor() {
-        this.init();
+    constructor(canv: HTMLCanvasElement) {
+        this.canv = canv;
+        this.ctx = canv.getContext("2d");
     }
 
-    init() {
-        var el = document.getElementById('content');
-        this.canv = <HTMLCanvasElement>document.getElementById('myCanvas');
-        this.ctx = this.canv.getContext("2d");
-    }
-
-    onRot(r: number, p: number) {
-    }
     onRender = () => {
+        this.ctx.save();
         this.ctx.fillStyle = '#777777';
         this.ctx.fillRect(0, 0, this.canv.width, this.canv.height);
         this.ctx.fillStyle = '#88aa88';
-        this.ctx.globalAlpha=0.1;
+        this.ctx.globalAlpha = 0.1;
         this.ctx.strokeStyle = '#999999';
         this.ctx.beginPath();
-        for (var i = 0; i < 4000; i++) {
-            this.ctx.moveTo(Math.random()*600, Math.random()*600);
-            this.ctx.lineTo(Math.random()*600, Math.random()*600);
+        /*
+        for (var i = 0; i < 80000; i++) {
+            this.ctx.moveTo(Math.random() * 600, Math.random() * 600);
+            this.ctx.lineTo(Math.random() * 600, Math.random() * 600);
         }
-            //this.ctx.fill();
-            this.ctx.stroke();
-        //        this.ctx.stroke()
+        */
+        //this.ctx.fill();
+        this.ctx.stroke();
 
+        var tm = Date.now() / 1600;
+        var x = Math.cos(tm) * 100;
+        var y = Math.sin(tm) * 100;
+
+        this.ctx.lineCap = 'round';
+        this.ctx.lineWidth = 40;
+        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.beginPath();
+        this.ctx.translate(200, 200);
+        this.ctx.moveTo(100, 100);
+        this.ctx.lineTo(200, 100);
+        this.ctx.lineTo(200 + x, 100 + y);
+        this.ctx.stroke();
+
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = '#ff0000';
+        this.ctx.moveTo(100, 100);
+        this.ctx.lineTo(200, 100);
+        this.ctx.lineTo(200 + x, 100 + y);
+        this.ctx.stroke();
+
+        this.ctx.restore();
         updateFPS(this.ctx);
     }
 }
 
-var app = new CanvasTest();
-startAnimation(app.onRender);
+export function main(canv: HTMLCanvasElement) {
+    var app = new CanvasTest(canv);
+    startAnimation(app.onRender);
+}

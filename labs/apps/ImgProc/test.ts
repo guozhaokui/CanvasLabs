@@ -1,6 +1,8 @@
 
 /// <reference path='../../runtime/defination/electron.d.ts' />
+/// <reference path='../../runtime/defination/node.d.ts' />
 
+import * as fs from 'fs';
 import async = require('../../runtime/runtimeMod/common/Async');
 //var canvasBuffer = require('electron-canvas-to-buffer');
 const nativeImage = require('electron').nativeImage;
@@ -11,6 +13,24 @@ function startAnimation(renderFunc: () => void) {
         window.requestAnimationFrame(_render);
     }
     window.requestAnimationFrame(_render);
+}
+
+/**
+ * 把一个图片缩放一下，保存到指定的文件中
+ */
+function ResizeImg(img:HTMLImageElement, nw:number,nh:number, file:string){
+    //var nw = parseInt((img.width*scx).toString());
+    //var nh = parseInt((img.height*scy).toString());
+    var canv = document.createElement('canvas');
+    canv.width=nw;
+    canv.height=nh;
+    var ctx = canv.getContext('2d');
+    ctx.drawImage(img,0,0,img.width,img.height,0,0,nw,nh);
+    var buf = canv.toDataURL('image/png');
+    var nimg = nativeImage.createFromDataURL(buf);
+    var sz:{width:number,height:number} = nimg.getSize();
+    console.log('new img:'+sz.width+','+sz.height);
+    fs.writeFileSync(file,nimg.toPng());
 }
 
 class ImageBuffer {
@@ -81,7 +101,8 @@ class ImgProc {
     }
 
     onCanvClick(e:MouseEvent){
-        this.canv.toDataURL("image/png");
+        //this.canv.toDataURL("image/png");
+        ScaleImg(this.img,1,1,'d:/temp/fuck.png');
     }
     onRender() {
         if (!this.loaded)

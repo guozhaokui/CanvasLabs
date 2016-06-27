@@ -9,6 +9,8 @@ export class FPS2D{
     updateFPS=(ctx: CanvasRenderingContext2D):void=>{
         var curtm = Date.now();
         ctx.save();
+        //var stx = ctx.canvas.width-this.rect[2]-2;
+        //ctx.translate(stx,0);
         ctx.globalAlpha = 0.5;
         ctx.fillStyle = '#331111';
         ctx.fillRect(this.rect[0], this.rect[1], this.rect[2], this.rect[3]);
@@ -35,7 +37,7 @@ export class FPS2D{
             ctx.lineTo(cx++, this.rect[3] - this.fpsdata[x]);
         }
         ctx.stroke();
-        ctx.font = '16px Arial';
+        ctx.font = '12px Arial';
         ctx.globalAlpha = 1;
         ctx.fillStyle = '#ffffff';
         ctx.fillText('FPS:' + fps, 4, 20);

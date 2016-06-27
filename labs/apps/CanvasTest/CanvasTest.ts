@@ -25,7 +25,7 @@ class CanvasTest {
         this.ctx = canv.getContext("2d");
     }
 
-    onRender = () => {
+    testLine(){
         this.ctx.save();
         this.ctx.fillStyle = '#777777';
         this.ctx.fillRect(0, 0, this.canv.width, this.canv.height);
@@ -65,6 +65,27 @@ class CanvasTest {
         this.ctx.stroke();
 
         this.ctx.restore();
+    }
+
+    testComposite(){
+        var ctx = this.ctx;
+        ctx.save();
+        ctx.fillStyle="red";
+        ctx.fillRect(20,20,75,50);
+        ctx.globalCompositeOperation="source-over";
+        ctx.fillStyle="blue";
+        ctx.fillRect(50,50,75,50);
+
+        ctx.fillStyle="red";
+        ctx.fillRect(150,20,75,50);
+        ctx.globalCompositeOperation="destination-over";
+        ctx.fillStyle="blue";
+        ctx.fillRect(180,50,75,50);
+        ctx.restore();
+    }
+    onRender = () => {
+        //this.testLine();
+        this.testComposite();
         updateFPS(this.ctx);
     }
 }

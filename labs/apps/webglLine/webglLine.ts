@@ -68,17 +68,7 @@ class testWebglLine {
         //gl.drawArrays(gl.LINE_STRIP,0,4);
         //gl.renderMesh(this.renderGroup, this.rundatas);
         
-        render(data,[shader,shaderdata]);
-        
-        drawImage(img){
-            asmBuff();
-            assinMaterial();
-            render(buf,material)
-        }
-        
-        drawImage(img1,x,y);
-        drawImage(img2,x,y);
-        fillRect(rect);
+
     }
 }
 

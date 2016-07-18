@@ -102,7 +102,7 @@ class ImgProc {
 
     onCanvClick(e:MouseEvent){
         //this.canv.toDataURL("image/png");
-        ScaleImg(this.img,1,1,'d:/temp/fuck.png');
+        ResizeImg(this.img,1,1,'d:/temp/fuck.png');
     }
     onRender() {
         if (!this.loaded)

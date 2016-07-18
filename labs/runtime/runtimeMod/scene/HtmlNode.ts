@@ -37,7 +37,7 @@ function createTag(tag: string, prop: Object): HTMLElement {
             h.call(div,prop[p]);
         }else{
             //没有特殊表明的直接赋值
-            div[p] = prop[p];
+            div.setAttribute(p,prop[p]);
         }
     }
 
@@ -52,6 +52,7 @@ class HtmlNodeBranch {
 
     }
     createFromDesc(desc: string, createFunc: (tag: string, prop: Object) => HTMLElement) {
+        if(!createFunc) createFunc =  createTag;
         var lines = desc.split('\n');
         var nodeLayer = new Array<HTMLElement>();
         for (let i in lines) {
@@ -119,3 +120,12 @@ var gg = new HtmlNodeBranch(desc);
 gg.createFromDesc(desc,createTag);
 
 document.body.appendChild(gg.root);
+
+
+function gaussian(x) {
+    return 1.0/Math.sqrt(2*Math.PI)*Math.exp(-x*x/2);
+}
+
+for(var i=-10; i<10; i++){
+    console.log(i+','+gaussian(i));
+}

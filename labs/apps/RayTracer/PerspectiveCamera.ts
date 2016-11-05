@@ -2,7 +2,7 @@
 import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
 import {Ray3} from '../../runtime/runtimeMod/math/Ray3';
 
-class PerspectiveCamera{
+export class PerspectiveCamera{
     eye=new Vector3(0,0,0);
     front=new Vector3(0,0,0);
     refUp=new Vector3(0,0,0);

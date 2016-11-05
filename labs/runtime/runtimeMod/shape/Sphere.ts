@@ -6,6 +6,7 @@ export class Sphere implements ShapeBase{
     center=new Vector3(0,0,0);
     radius=0;
     sqrRadius=0;
+    material;
     constructor(c:Vector3, r:number){
         this.center = c; 
         this.radius=r;

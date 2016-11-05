@@ -2,9 +2,12 @@
 import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
 import {ShapeBase} from '../../runtime/runtimeMod/shape/ShapeBase';
 import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
+import {Color} from './Color';
+import {Union} from './Union';
+import {PerspectiveCamera} from './PerspectiveCamera';
 
 
-function rayTraceRecursive(scene, ray, maxReflect) {
+function rayTraceRecursive(scene:Union, ray:Ray3, maxReflect:number):Color {
     var result = scene.intersect(ray);
     
     if (result.geometry) {
@@ -25,7 +28,7 @@ function rayTraceRecursive(scene, ray, maxReflect) {
 }
 
 
-export function raytrace(canvas:HTMLCanvasElement, scene, camera){
+export function raytrace(canvas:HTMLCanvasElement, scene:Union, camera:PerspectiveCamera){
     if (!canvas || !canvas.getContext) 
         return;
 
@@ -50,14 +53,11 @@ export function raytrace(canvas:HTMLCanvasElement, scene, camera){
         for (var x = 0; x < w; x++) {
             var sx = x / w;
             var ray = camera.generateRay(sx, sy);
-            var result = scene.intersect(ray);
-            if (result.geometry) {
-                var color = result.geometry.material.sample(ray, result.position, result.normal);
-                pixels[i] = color.r * 255;
-                pixels[i + 1] = color.g * 255;
-                pixels[i + 2] = color.b * 255;
-                pixels[i + 3] = 255;
-            }
+            var color = rayTraceRecursive(scene,ray,2);
+            pixels[i] = color.r * 255;
+            pixels[i + 1] = color.g * 255;
+            pixels[i + 2] = color.b * 255;
+            pixels[i + 3] = 255;
             i += 4;
         }
     }

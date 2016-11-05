@@ -3,10 +3,11 @@ import {ShapeBase} from './ShapeBase'
 import {Vector3} from '../math/Vector3';
 import {Ray3,IntersectResult} from '../math/Ray3';
 
-class Plane implements ShapeBase{
+export class Plane implements ShapeBase{
     normal:Vector3;
     d:number;
     position:Vector3;
+    material;
     constructor(norm:Vector3,d:number){
         this.normal=norm;
         this.d=d;

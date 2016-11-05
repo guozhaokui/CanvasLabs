@@ -14,4 +14,6 @@ export class Color{
     
     static white=new Color(1,1,1);
     static black = new Color(0,0,0);
+    static red = new Color(1,0,0);
+    static blue = new Color(0,0,1);
 }

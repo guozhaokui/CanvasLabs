@@ -6,7 +6,7 @@ import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
 /**
  * 就是scene
  */
-class Union{
+export class Union{
     geometries:ShapeBase[];
     constructor(geometries){
         this.geometries=geometries;

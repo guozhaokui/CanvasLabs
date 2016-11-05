@@ -53,6 +53,7 @@ class CanvasTest {
 
     Render(){
         raytrace(this.canv, this.scene,this.cam);
+        this.cam.eye=this.cam.eye.add(new Vector3(5*Math.sin(Date.now()/1000),0,0));
     }
 
     onRender = () => {

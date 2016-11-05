@@ -13,7 +13,7 @@ function rayTraceRecursive(scene:Union, ray:Ray3, maxReflect:number):Color {
     if (result.geometry) {
         var reflectiveness = result.geometry.material.reflectiveness;
         var color = result.geometry.material.sample(ray, result.position, result.normal);
-        color = color.multiply(1 - reflectiveness);
+        color = color.multiply(1 - reflectiveness);//反射越强，当前点贡献的颜色越少。
         
         if (reflectiveness > 0 && maxReflect > 0) {
             var r = result.normal.multiply(-2 * result.normal.dot(ray.direction)).add(ray.direction);
@@ -36,8 +36,8 @@ export function raytrace(canvas:HTMLCanvasElement, scene:Union, camera:Perspecti
     if (!ctx.getImageData)
         return;
 
-    var w = canvas.width;
-    var h = canvas.height;
+    var w = 200;//canvas.width;
+    var h = 200;//canvas.height;
     ctx.fillStyle = "rgb(0,0,0)";
     ctx.fillRect(0, 0, w, h);
 

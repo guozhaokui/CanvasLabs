@@ -3,6 +3,8 @@ var π = Math.PI;
 var sin = Math.sin;
 var cos = Math.cos;
 
+import {Sampler } from './sampler'
+
 /**
  * x,y采用图像坐标
  * z指向屏幕外面
@@ -23,7 +25,7 @@ export class Ocean{
     A=10;//振幅
     λ=200;    //波长
     K=2*π/this.λ;
-    sky:HTMLImageElement;
+    sky:Sampler;
     //θπφωλ
     constructor(buff:Uint8ClampedArray, w:number,h:number){
         this.data = buff;
@@ -129,6 +131,25 @@ export class Ocean{
                 pix[ci++]=(this.nfield[ni++]+1)/2*255;
                 pix[ci++]=(this.nfield[ni++]+1)/2*255;
                 pix[ci++]=255;
+            }
+        }
+    }
+
+    render(){
+        if(!this.sky)
+            return;
+        var color = new Uint8ClampedArray(4);
+        var ci = 0;
+        var pix = this.data;
+        for( var y=0; y<this.height; y++){
+            for(var x=0; x<this.width; x++){
+                var u = x/this.width;
+                var v = y/this.height;
+                this.sky.sample(u,v,color);
+                pix[ci++]=color[0];
+                pix[ci++]=color[1];
+                pix[ci++]=color[2];
+                pix[ci++]=color[3];
             }
         }
     }

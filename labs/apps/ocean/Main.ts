@@ -2,6 +2,7 @@
 'use strict'
 import FPS2D = require('../../runtime/runtimeMod/common/FPS2D');
 import {Ocean} from './ocean'
+import {Sampler } from './sampler'
 
 function startAnimation(renderFunc: () => void) {
     function _render() {
@@ -13,7 +14,7 @@ function startAnimation(renderFunc: () => void) {
 
 var updateFPS = new FPS2D.FPS2D().updateFPS;
 
-class CanvasTest {
+class OceanTest {
     left: HTMLDivElement;
     right: HTMLDivElement;
     fullWidth = 2984;
@@ -34,7 +35,9 @@ class CanvasTest {
         var pix = imgdata.data;
         this.ocean = new Ocean(pix,w,h);
         var skyimg = new Image();
-        this.ocean.sky = skyimg;
+        skyimg.onload=()=>{
+            this.ocean.sky = new Sampler(skyimg);
+        }
         skyimg.src='imgs/sky.png';
     }
 
@@ -43,7 +46,8 @@ class CanvasTest {
         this.ocean.genHeight(this.tm++);
         //this.ocean.renderHeight();
         this.ocean.genNormal();
-        this.ocean.renderNormal();
+        //this.ocean.renderNormal();
+        this.ocean.render();
         this.ctx.putImageData(this.imgData, 0, 0);
     }
 
@@ -54,6 +58,6 @@ class CanvasTest {
 }
 
 export function main(canv: HTMLCanvasElement) {
-    var app = new CanvasTest(canv);
+    var app = new OceanTest(canv);
     startAnimation(app.onRender);
 }

@@ -53,7 +53,8 @@ class OceanTest {
         //this.ctx.drawImage(this.img,0,0);
         this.ocean.genHeight(this.tm++);
         //this.ocean.renderHeight();
-        this.ocean.genNormal();
+        //this.ocean.genNormal();
+        this.ocean.genNormalTest();
         //this.ocean.renderNormal();
         this.ocean.render(this.eyepos);
         this.ocean.showXWave(this.ctx, 0,300);

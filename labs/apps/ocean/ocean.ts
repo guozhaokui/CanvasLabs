@@ -27,6 +27,8 @@ export class Ocean{
     λ=100;    //波长
     K=2*π/this.λ;
     sky:Sampler;    //要求格式为360度全景图
+    normalTex:Sampler;
+    nx=0;
     //θπφωλ
     constructor(buff:Uint8ClampedArray, w:number,h:number){
         this.data = buff;
@@ -34,6 +36,12 @@ export class Ocean{
         this.height=h;
         this.hfield = new Float32Array(w*h);
         this.nfield = new Float32Array(w*h*3);
+
+        var normTex = new Image();
+        normTex.src='imgs/normal.png';
+        normTex.onload=()=>{
+            this.normalTex = new Sampler(normTex);
+        }
     }
 
     genHeight(t:number){
@@ -105,6 +113,30 @@ export class Ocean{
         //右边
     }
 
+    genNormalTest(){
+        if(!this.normalTex)
+            return;
+
+        var ni=0;
+        var norm = new Uint8ClampedArray(4);
+        var cx=0;
+        var cy=0;
+        var dx = 1/this.width;
+        var dy = 1/this.height;
+        this.nx+=0.002;
+        for(var y=0; y<this.height; y++){
+            cx=0;
+            for(var x=0; x<this.width; x++){
+                this.normalTex.sample(cx+this.nx,cy,norm);
+                cx+=dx;
+                this.nfield[ni++]= (norm[0]/255)*2-1;
+                this.nfield[ni++]= (norm[1]/255)*2-1;
+                this.nfield[ni++]= (norm[2]/255)*2-1;
+            }
+            cy+=dy;
+        }
+    }
+
     renderHeight(){
         var d = this.maxH-this.minH;
         var i=0;
@@ -167,17 +199,27 @@ export class Ocean{
                 */
                 //球形贴图头顶是z,x朝左，y朝上，
                 //法线在高度上的投影对应uv的v，从-1到1转成0到1
-                var texc_v = (1+outerz)/2;//这个也可以用y，那下面的就用x，z
+                var upisz = false;//北极为z轴
+                var texc_u,texc_v;
+                if( upisz){
+                    texc_v = (1+outerz)/2;//这个也可以用y，那下面的就用x，z
+                    //法线在赤道上的投影转到角度对应的是u坐标。这个投影是(nx,ny,0)
+                    var ang = Math.atan2(outerx,outery);//这个得到的值是 -π到π， 0对应的是x坐标的时候，
+                    //转到0到1。方向颠倒
+                    texc_u = (-ang+π)/2/π;
+                }else{
+                    texc_v = (1+outery)/2;//这个也可以用y，那下面的就用x，z
+                    //法线在赤道上的投影转到角度对应的是u坐标。这个投影是(nx,ny,0)
+                    var ang = Math.atan2(outerx,outerz);//这个得到的值是 -π到π， 0对应的是x坐标的时候，
+                    //转到0到1。方向颠倒
+                    texc_u = (-ang+π)/2/π;
+                }
                 if(false){//texc_v<0.5){
                     // pix[ci++]=0; 
                     // pix[ci++]=0;
                     // pix[ci++]=0;
                     // pix[ci++]=255;//color[3];
                 }else{
-                    //法线在赤道上的投影转到角度对应的是u坐标。这个投影是(nx,ny,0)
-                    var ang = Math.atan2(outerx,outery);//这个得到的值是 -π到π， 0对应的是x坐标的时候，
-                    //转到0到1。方向颠倒
-                    var texc_u = (-ang+π)/2/π;
                     //偏移90度，让y指向的为0
                     //先不做。可以通过贴图转换来做
                     this.sky.sample(texc_u,texc_v,color);

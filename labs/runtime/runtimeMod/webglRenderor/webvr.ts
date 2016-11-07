@@ -1,3 +1,4 @@
+/// <reference path="../../../../webvr-api.d.ts" />
 
 
 class WebVR{

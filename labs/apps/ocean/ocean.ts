@@ -4,6 +4,7 @@ var sin = Math.sin;
 var cos = Math.cos;
 
 import {Sampler } from './sampler'
+import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
 
 /**
  * x,y采用图像坐标
@@ -25,7 +26,7 @@ export class Ocean{
     A=10;//振幅
     λ=200;    //波长
     K=2*π/this.λ;
-    sky:Sampler;
+    sky:Sampler;    //要求格式为360度全景图
     //θπφωλ
     constructor(buff:Uint8ClampedArray, w:number,h:number){
         this.data = buff;
@@ -135,17 +136,45 @@ export class Ocean{
         }
     }
 
-    render(){
+    render(eyepos:Vector3){
         if(!this.sky)
             return;
         var color = new Uint8ClampedArray(4);
         var ci = 0;
+        var ni = 0;
         var pix = this.data;
         for( var y=0; y<this.height; y++){
             for(var x=0; x<this.width; x++){
-                var u = x/this.width;
-                var v = y/this.height;
-                this.sky.sample(u,v,color);
+                var nx = this.nfield[ni++];
+                var ny = this.nfield[ni++];
+                var nz = this.nfield[ni++];
+                var enterx = x-eyepos.x;
+                var entery = y-eyepos.y;
+                var enterz = eyepos.z;
+                var enterl = Math.sqrt(enterx*enterx+entery*entery+enterz*enterz);
+                enterx/=enterl; 
+                entery/=enterl; 
+                enterz/=enterl;
+                //求反射向量。 入射线在法线上的投影放大2倍-入射线
+                var dotv2 = 2*(enterx*nx+entery*ny+enterz*nz);   //入射线在法线上的投影
+                var outerx = nx*dotv2-enterx;
+                var outery = ny*dotv2-entery;
+                var outerz = nz*dotv2-enterz;
+                /*
+                var texc_u = x/this.width;
+                var texc_v = y/this.height;
+                */
+                //球形贴图方式假设为x朝左，y超里，z朝上，y轴指向图片中心。
+                //法线在高度上的投影对应uv的v，从-1到1转成0到1
+                var texc_v = (1+outery)/2;
+                //法线在赤道上的投影转到角度对应的是u坐标。这个投影是(nx,ny,0)
+                var ang = Math.atan2(outerx,outerz);//这个得到的值是 -π到π， 0对应的是x坐标的时候，
+                //转到0到1。方向颠倒
+                var texc_u = (-ang+π)/2/π;
+                //偏移90度，让y指向的为0
+                //先不做。可以通过贴图转换来做
+                this.sky.sample(texc_u,texc_v,color);
+
                 pix[ci++]=color[0];
                 pix[ci++]=color[1];
                 pix[ci++]=color[2];

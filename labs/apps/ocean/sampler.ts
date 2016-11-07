@@ -50,4 +50,20 @@ export class Sampler{
         color[3]=this.imgdata[p++];
         return null;
     }
+
+    dir2uv(){
+        
+    }
+    /**
+     * 上半球采样。
+     * 朝下的返回黑色
+     */
+    sampleSemiSphere(x:number,y:number,z:number,color:Uint8ClampedArray):void{
+        if(z<=0){
+            color[0]=color[1]=color[2]=0;
+            color[3]=255;
+            return;
+        }
+
+    }
 }

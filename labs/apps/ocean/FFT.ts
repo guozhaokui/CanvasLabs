@@ -75,7 +75,7 @@ function fft(dataArray) {
     var count = 1<<r; // 相当于count=2^r
 
     // 如果数据dataArray的长度不是2^N，则开始补0
-    for(var i=dataLen; i<count; i++) {
+    for(i=dataLen; i<count; i++) {
         dataArray[i] = 0;
     }
 
@@ -84,12 +84,12 @@ function fft(dataArray) {
 
     // 计算加权系数w
     var w = [];
-    for(var i=0; i<count/2; i++) {
+    for(i=0; i<count/2; i++) {
         var angle = -i*Math.PI*2/count;
         w.push({real: Math.cos(angle), imag: Math.sin(angle)});
     }
 
-    for(var i=0; i<r; i++) { // 级循环
+    for(i=0; i<r; i++) { // 级循环
         var group = 1<<(r-1-i);
         var distance = 1<<i;
         var unit = 1<<i;

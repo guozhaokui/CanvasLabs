@@ -30,6 +30,8 @@ class OceanTest {
     imgData:ImageData;
     tm=0;
     eyepos:Vector3;
+    normValue='Normal:';
+    curNorm=new Float32Array(3);
     constructor(canv: HTMLCanvasElement) {
         this.canv = canv;
         this.ctx = canv.getContext("2d");
@@ -54,16 +56,32 @@ class OceanTest {
         this.ocean.genNormal();
         //this.ocean.renderNormal();
         this.ocean.render(this.eyepos);
+        this.ocean.showXWave(this.ctx, 0,300);
         this.ctx.putImageData(this.imgData, 0, 0);
+        this.ctx.fillStyle='white';
+        this.ctx.fillRect(0,500,1000,200);
+        this.ctx.fillStyle='black';
+        this.ctx.font='30px Arial';
+        this.ctx.fillText(this.normValue,0,600);
     }
 
     onRender = () => {
         this.render();
         updateFPS(this.ctx);
     }
+
+    onmousemove(x:number,y:number){
+        this.ocean.getNorm(x,y,this.curNorm);
+        if(!isNaN(this.curNorm[0]) )
+            this.normValue = 'NORM:  '+this.curNorm[0].toPrecision(4)+',  '+this.curNorm[1].toPrecision(4)+',  '+this.curNorm[2].toPrecision(4);
+    }
 }
 
 export function main(canv: HTMLCanvasElement) {
     var app = new OceanTest(canv);
     startAnimation(app.onRender);
+    canv.onmousemove=(e:MouseEvent)=>{
+        app.onmousemove(e.clientX,e.clientY);
+        //console.log('kkkk'+e.clientX+','+e.clientY);
+    }
 }

@@ -24,7 +24,7 @@ export class Ocean{
     φ=0;//初相角
     Z0=0;//潮高
     A=10;//振幅
-    λ=200;    //波长
+    λ=100;    //波长
     K=2*π/this.λ;
     sky:Sampler;    //要求格式为360度全景图
     //θπφωλ
@@ -144,13 +144,14 @@ export class Ocean{
         var ni = 0;
         var pix = this.data;
         for( var y=0; y<this.height; y++){
+            var yw = y*this.width;
             for(var x=0; x<this.width; x++){
                 var nx = this.nfield[ni++];
                 var ny = this.nfield[ni++];
                 var nz = this.nfield[ni++];
-                var enterx = x-eyepos.x;
-                var entery = y-eyepos.y;
-                var enterz = eyepos.z;
+                var enterx = eyepos.x-x;
+                var entery = eyepos.y-y;
+                var enterz = eyepos.z-this.hfield[yw++];
                 var enterl = Math.sqrt(enterx*enterx+entery*entery+enterz*enterz);
                 enterx/=enterl; 
                 entery/=enterl; 
@@ -164,23 +165,60 @@ export class Ocean{
                 var texc_u = x/this.width;
                 var texc_v = y/this.height;
                 */
-                //球形贴图方式假设为x朝左，y超里，z朝上，y轴指向图片中心。
+                //球形贴图头顶是z,x朝左，y朝上，
                 //法线在高度上的投影对应uv的v，从-1到1转成0到1
-                var texc_v = (1+outery)/2;
-                //法线在赤道上的投影转到角度对应的是u坐标。这个投影是(nx,ny,0)
-                var ang = Math.atan2(outerx,outerz);//这个得到的值是 -π到π， 0对应的是x坐标的时候，
-                //转到0到1。方向颠倒
-                var texc_u = (-ang+π)/2/π;
-                //偏移90度，让y指向的为0
-                //先不做。可以通过贴图转换来做
-                this.sky.sample(texc_u,texc_v,color);
+                var texc_v = (1+outerz)/2;//这个也可以用y，那下面的就用x，z
+                if(false){//texc_v<0.5){
+                    // pix[ci++]=0; 
+                    // pix[ci++]=0;
+                    // pix[ci++]=0;
+                    // pix[ci++]=255;//color[3];
+                }else{
+                    //法线在赤道上的投影转到角度对应的是u坐标。这个投影是(nx,ny,0)
+                    var ang = Math.atan2(outerx,outery);//这个得到的值是 -π到π， 0对应的是x坐标的时候，
+                    //转到0到1。方向颠倒
+                    var texc_u = (-ang+π)/2/π;
+                    //偏移90度，让y指向的为0
+                    //先不做。可以通过贴图转换来做
+                    this.sky.sample(texc_u,texc_v,color);
 
-                pix[ci++]=color[0];
-                pix[ci++]=color[1];
-                pix[ci++]=color[2];
-                pix[ci++]=color[3];
+                    pix[ci++]=color[0];//(1+outerx)/2*255;// 
+                    pix[ci++]=color[1];//(1+outery)/2*255;//
+                    pix[ci++]=color[2];//(1+outerz)/2*255;//
+                    pix[ci++]=255;//color[3];
+                }
             }
         }
     }
 
+    showXWave(ctx:CanvasRenderingContext2D, x:number,y:number){
+        var hi=0;
+        var canvh = 100;
+        ctx.save();
+        ctx.strokeStyle='red';
+        ctx.translate(x,y);
+        ctx.fillStyle='#777777';
+        ctx.fillRect(0,0,this.width,canvh);
+        ctx.beginPath();
+        var dh = this.maxH-this.minH;
+        var h=canvh-(this.hfield[0]-this.minH)*canvh/dh;
+        ctx.moveTo(0,h);
+        for(var x=0; x<this.width; x++){
+            h=canvh-(this.hfield[hi++]-this.minH)*canvh/dh;
+            ctx.lineTo(x,h);
+        }
+        ctx.stroke();
+        ctx.restore();
+    }
+    showYWave(ctx:CanvasRenderingContext2D, x:number,y:number){
+    }
+
+    getNorm(x:number,y:number, norm:Float32Array):void{
+        if(x<this.width && y<this.height ){ 
+            var ni = (this.width*y+x)*3;
+            norm[0] = this.nfield[ni++];
+            norm[1] = this.nfield[ni++];
+            norm[2] = this.nfield[ni++];
+        }
+    }
 }

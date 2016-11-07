@@ -41,8 +41,9 @@ export class Sampler{
     sample(u:number,v:number,color:Uint8ClampedArray):void{
         var x = Math.floor(u*this.width);
         var y = Math.floor(v*this.height);
+        x%=this.width;
+        y%=this.height;
         var p = y*this.width + x;
-        if(p>=this.pixnum) p=this.pixnum-1;
         p*=4;
         color[0]=this.imgdata[p++];
         color[1]=this.imgdata[p++];

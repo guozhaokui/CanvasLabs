@@ -50,6 +50,7 @@ class OceanTest {
     }
 
     render(){
+        this.ctx.save();
         //this.ctx.drawImage(this.img,0,0);
         this.ocean.genHeight(this.tm++);
         //this.ocean.renderHeight();
@@ -63,6 +64,28 @@ class OceanTest {
         this.ctx.fillStyle='black';
         this.ctx.font='30px Arial';
         this.ctx.fillText(this.normValue,0,600);
+        this.ctx.restore();
+
+        //TEST
+        var ctx = this.ctx;
+        ctx.save();
+        ctx.translate(0,600);
+        ctx.beginPath();
+        ctx.fillStyle='white';
+        ctx.fillRect(0,0,300,300);
+        ctx.strokeStyle='red';
+        ctx.moveTo(0,0);
+        var st = 10;
+        var a=10;
+        var b = 50;
+        for( var t=0; t<300; t++){
+            var x = a*t - b*Math.cos(t/2);
+            var y = a + b*Math.sin(t/2);
+            ctx.lineTo(x,y); 
+        }
+        ctx.stroke();
+        ctx.restore();
+        //TEST
     }
 
     onRender = () => {

@@ -119,6 +119,7 @@ export class Ocean{
 
         var ni=0;
         var norm = new Uint8ClampedArray(4);
+        var norm1 = new Uint8ClampedArray(4);
         var cx=0;
         var cy=0;
         var dx = 1/this.width;
@@ -128,6 +129,10 @@ export class Ocean{
             cx=0;
             for(var x=0; x<this.width; x++){
                 this.normalTex.sample(cx+this.nx,cy,norm);
+                this.normalTex.sample(cx+this.nx*2,cy,norm1);
+                norm[0]=(norm[0]+norm1[0])/2;
+                norm[1]=(norm[1]+norm1[1])/2;
+                norm[2]=(norm[2]+norm1[2])/2;
                 cx+=dx;
                 this.nfield[ni++]= (norm[0]/255)*2-1;
                 this.nfield[ni++]= (norm[1]/255)*2-1;

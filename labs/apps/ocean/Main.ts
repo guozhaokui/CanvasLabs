@@ -77,7 +77,7 @@ class OceanTest {
         ctx.moveTo(0,0);
         var st = 10;
         var a=10;
-        var b = 50;
+        var b = 20;
         for( var t=0; t<300; t++){
             var x = a*t - b*Math.cos(t/2);
             var y = a + b*Math.sin(t/2);

@@ -19,6 +19,11 @@
 Gerstner 模型  
 ![](docimg/gerstner.png)
 
+扩展到二维  
+![](docimg/gerstner2d.png)  
+μ是用来调整波形的
+xz为水平面，y向上
+x0向量和t是自变量，x0向量对应水平面的任意点
 
 http://blog.csdn.net/jocyln9026/article/details/42103311
 
@@ -71,6 +76,8 @@ http://blog.csdn.net/jocyln9026/article/details/42103311
 正态分布
     标准差 δ : v= Σ(di-μ)^2 , δ = sqrt( v/n )
     平均值 μ
+
+参数
 
 ![](docimg/zhengtaifenbu.gif)  
 如果μ=0，δ=1 就是标准化后的正态分布  

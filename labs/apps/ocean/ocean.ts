@@ -22,6 +22,7 @@ export class Ocean{
     sky:Sampler;    //要求格式为360度全景图
     wavedata:WaveData[];
     waveGen1:CosWave;
+    heightimg:Sampler;
     //θπφωλ
     constructor(buff:Uint8ClampedArray, w:number,h:number){
         this.data = buff;
@@ -38,9 +39,37 @@ export class Ocean{
             {A:2,θ:π/2,φ:0,f:50,λ:30}
         ];
         this.waveGen1 = new CosWave(300,300,1,1,this.wavedata);
+        //temp
+        var himg = new Image();
+        himg.src = 'imgs/height.png';
+        himg.onload=()=>{
+            this.heightimg = new Sampler(himg);
+        }
     }
 
     genHeight(t:number){
+        if( !this.heightimg )
+            return;
+        var hi=0; 
+        var hvalue=new Uint8ClampedArray(4);
+        var cu = 0;
+        var cv = 0;
+        var du = 1/this.heightimg.width;
+        var dv = 1/this.heightimg.height; 
+        for( var y=0; y<this.height; y++){
+            cu=0;
+            for(var x=0; x<this.width; x++){
+                this.heightimg.sample(cu+t/1000,cv,hvalue);
+                var vh = hvalue[0]/10;
+                this.hfield[hi++] = vh;
+                if(this.minH>vh) this.minH=vh;
+                if(this.maxH<vh) this.maxH=vh;
+                cu+=du;
+            }
+            cv+=dv;
+        }
+    }
+    genHeight2(t:number){
         var i=0;
         this.hfield = this.waveGen1.update(t/1000);
         this.minH = this.waveGen1.minh;

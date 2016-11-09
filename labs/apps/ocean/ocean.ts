@@ -5,6 +5,7 @@ var cos = Math.cos;
 
 import {Sampler } from './sampler'
 import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
+import {CosWave,WaveData} from './CosWave'
 
 /**
  * x,y采用图像坐标
@@ -18,15 +19,9 @@ export class Ocean{
     minH=0;
     hfield:Float32Array;
     nfield:Float32Array;    //法线图
-    θ=0;//传播方向。朝向x为0
-    f=10;//频率
-    ω=2*π*this.f;
-    φ=0;//初相角
-    Z0=0;//潮高
-    A=10;//振幅
-    λ=100;    //波长
-    K=2*π/this.λ;
     sky:Sampler;    //要求格式为360度全景图
+    wavedata:WaveData[];
+    waveGen1:CosWave;
     //θπφωλ
     constructor(buff:Uint8ClampedArray, w:number,h:number){
         this.data = buff;
@@ -34,26 +29,22 @@ export class Ocean{
         this.height=h;
         this.hfield = new Float32Array(w*h);
         this.nfield = new Float32Array(w*h*3);
+
+        var b:WaveData;
+        //b.A;b.k;b.θ;b.φ;b.ω;
+        this.wavedata=[
+            {A:20,θ:0,φ:0,f:10,λ:100},
+            {A:6,θ:π/4,φ:0,f:30,λ:50},
+            {A:2,θ:π/2,φ:0,f:50,λ:30}
+        ];
+        this.waveGen1 = new CosWave(300,300,1,1,this.wavedata);
     }
 
     genHeight(t:number){
         var i=0;
-        var pix = this.data;
-        var A = 20;
-        var K = this.K;
-        this.maxH=-1000;
-        this.minH=1000;
-        var φ = this.φ;
-        var ω = this.ω;
-        var ωt= ω*t/1000;
-        for(var y=0; y<this.height; y++){
-            for(var x=0; x<this.width; x++){
-                var v = A*cos(K*x-ωt+φ);
-                this.hfield[i++] = v;
-                if(this.maxH<v)this.maxH=v;
-                if(this.minH>v)this.minH=v;
-            }
-        }
+        this.hfield = this.waveGen1.update(t/1000);
+        this.minH = this.waveGen1.minh;
+        this.maxH = this.waveGen1.maxh;
     }
     /**
      * 计算法线

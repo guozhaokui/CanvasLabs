@@ -51,8 +51,10 @@ export class GerstnerWave{
     φ=0;    //初相角
     U10=11.5;  //10米处的风速
     U10θ=0;//-π/4; //风向
-    vertXNum=513;//2pi区间。n取值为[-256,256]
-    vertYNum=513;
+    vertXNum=0;//2pi区间。
+    vertYNum=0;
+    worldWidth=128;    //水面的x宽度。单位是m
+    worldHeight=128;   //水面的y宽度。单位是m
     boshupu:Float32Array;
     bmpBuffer:ImageData;    //放在这里是为了提高效率，避免每次创建
     constructor(width:number, height:number){

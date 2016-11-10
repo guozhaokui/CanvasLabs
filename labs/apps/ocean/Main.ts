@@ -6,6 +6,7 @@ import {Sampler } from './sampler'
 import {Plane} from '../../runtime/runtimeMod/shape/Plane';
 import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
 import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
+import {GerstnerWave} from './GerstnerWave'
 
 
 function startAnimation(renderFunc: () => void) {
@@ -32,6 +33,7 @@ class OceanTest {
     eyepos:Vector3;
     normValue='Normal:';
     curNorm=new Float32Array(3);
+    testGW = new GerstnerWave();
     constructor(canv: HTMLCanvasElement) {
         this.canv = canv;
         this.ctx = canv.getContext("2d");
@@ -47,6 +49,101 @@ class OceanTest {
             this.ocean.sky = new Sampler(skyimg);
         }
         skyimg.src='imgs/sky1.jpg';
+    }
+
+
+    /**
+     * 计算 ittc 谱
+     * x 是 ω，结果是对应的频谱（能量谱）
+     */
+    func_p_m_ittc_pu(xrange:number[]):Float32Array[]{
+        var xarr=[];
+        var yarr=[];
+        var a=0.0081;
+        var g=9.8;
+        var b=0.74;
+        var U=11.5; //三一平均波幅 风速
+        /**
+         * 2.8怎么来的
+         * U = 11.5 = 6.85*sqrt(h) 
+         * h=2.8
+         */
+        var h = 2.8;
+        for(var x=xrange[0]; x<xrange[2]; x+=xrange[1]){
+            xarr.push(x);
+            var sittc = (0.78/Math.pow(x,5)) *
+                        Math.exp(-3.12/(h*h*Math.pow(x,4)));
+            yarr.push(sittc);
+        }
+        return [new Float32Array(xarr),new Float32Array(yarr)];
+    }
+
+    /**
+     * 把 xarr,yarr 画到x,y 范围300,300的地方。y向上。
+     */
+    drawPlot(x:number,y:number, xarr:Float32Array, yarr:Float32Array, ctx:CanvasRenderingContext2D){
+        ctx.save();
+        ctx.translate(x,y);
+        ctx.fillStyle='white';
+        var minx=1e6,miny=1e6;
+        var maxx=-1e6,maxy=-1e6;
+        xarr.forEach((v)=>{if(minx>v)minx=v; if(maxx<v)maxx=v;});
+        yarr.forEach((v)=>{if(miny>v)miny=v; if(maxy<v)maxy=v;});
+
+        ctx.fillRect(0,0,300,300);//画在固定大小的地方。
+        //转换到画布空间
+        var txarr=new Float32Array(xarr);   //复制一个。
+        var tyarr=new Float32Array(yarr);
+        var xw = maxx-minx;
+        var yw = maxy-miny;
+        txarr.forEach((v,i)=>{
+            txarr[i]=300*(v-minx)/xw;
+        });
+        tyarr.forEach((v,i)=>{
+            tyarr[i]=300-300*(v-miny)/yw;
+        });
+
+        ctx.strokeStyle='red';
+        ctx.moveTo(txarr[0],tyarr[0]);
+        for( var xi=1;xi<txarr.length; xi++){
+            ctx.lineTo(txarr[xi], tyarr[xi]);
+        }
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    /**
+     * 用黑白色显示一个二维浮点数的值。
+     * @param x 
+     * @param y
+     * @param v 
+     * @param w {number} 数据的宽
+     * @param h {number} 数据的高
+     * @param minv {number} 这个值对应黑色
+     * @param maxv {number} 这个值对应白色
+     */
+    drawFloatArray2(x:number, y:number, v:Float32Array, w:number, h:number, minv:number,maxv:number, ctx:CanvasRenderingContext2D){
+        var imgdata = ctx.getImageData(x, y, w, h);
+        var pix = imgdata.data;
+        var dv =maxv-minv;
+        dv=255/dv;
+        if(dv<=0){
+            console.error('err1');
+            return;
+        } 
+        var vi=0;
+        var ci=0;
+        for(var cy=0; cy<h; cy++){
+            for( var cx=0; cx<w; cx++){
+                var cv = (v[vi]-minv)*dv;
+                pix[ci++]=cv; 
+                pix[ci++]=cv;
+                pix[ci++]=cv;
+                pix[ci++]=255;
+                vi++;
+            }
+        }
+        ctx.putImageData(imgdata, x, y);
     }
 
     render(){
@@ -86,6 +183,13 @@ class OceanTest {
         ctx.stroke();
         ctx.restore();
         //TEST
+        //TEST
+        var outxy = this.func_p_m_ittc_pu([0.3,0.01,4]);
+        this.drawPlot(0,600,outxy[0],outxy[1],ctx);
+        //TEST
+        var info={minv:0,maxv:0};
+        var bp = this.testGW.getBoShuPu(513,513,info);
+        this.drawFloatArray2(300,0,bp,513,513,info.minv,info.maxv,ctx);
     }
 
     onRender = () => {

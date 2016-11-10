@@ -1,7 +1,7 @@
 
 参考：
-    http://wenku.baidu.com/link?url=ne9kZ2EzocDzKfDta_0-dUwCirfkjoArZ50TcMuhcY_XfWZZFll254zHPjzUbVYc7Wb1mH-j7XY3uL_gUkI3bsbvrd3jjvKzxlWVhae1Mea
-    
+    http://wenku.baidu.com/link?url=PW4ae4SwoRIK4dtZ4DjDHh01e3KgLjOtKsJwBnSJI9U4ODVaEfGT9qHAMQ8t14fX6F7chQKwKQwdQdVxwV2Z4SLMz6Xe5YZh66HzTxeG7Um
+        主要参考
     http://fileadmin.cs.lth.se/graphics/theses/projects/projgrid/projgrid-hq.pdf
     
     siggraph 2016
@@ -76,12 +76,39 @@ http://blog.csdn.net/jocyln9026/article/details/42103311
 正态分布
     标准差 δ : v= Σ(di-μ)^2 , δ = sqrt( v/n )
     平均值 μ
+    几个获得方法
+    1. 多几个随机数，例如3个，加起来，就会得到正态分布的数据
+    2. Box–Muller 转换  https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+    3. ziggurat 算法
 
 参数
+计算 H(k,t)
+
+P-M谱
+
+
+频率谱和方向谱
+    频率谱只是能量在频率上的分布。
+    方向谱是每个频率在各个方向上的能量分布
+        能量随着频率和方向的分布
+    实际海浪除了沿着主方向传播外，还向其他方向扩散，称为断峰不规则波。描述海浪沿着不同方向组成的波谱，称为方向谱。
+    http://wenku.baidu.com/link?url=vBbgKwv82NiXko80UUFpIl2g8aODRwy7pKTY9broYVp5v7o9cXSy07lRO-2Ml1CbskLtZmobWn2bB1NueJmiM0g4E6sInqYxWH3ZeGpxpXy
+    S(ω,θ) = S(ω)D(ω,θ)
+    S(ω)是长峰不规则波的海浪谱,θ为组成波与主浪向的夹角
+    D(ω,θ)也称为方向扩展函数，一般形式为  
+    
+![](docimg/zuchenglang.png)
+    ISSC建议用以下两种n值：  
+![](docimg/d_n.png)    
+    比如取n为2
+
 
 ![](docimg/zhengtaifenbu.gif)  
 如果μ=0，δ=1 就是标准化后的正态分布  
 ![](docimg/biaozhunhua.gif)
+
+怎么根据波数谱得到振幅？
+
 
 欧拉公式
     e^ix = cosx+isinx

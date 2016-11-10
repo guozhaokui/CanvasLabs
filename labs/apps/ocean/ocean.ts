@@ -56,11 +56,13 @@ export class Ocean{
         var cv = 0;
         var du = 1/this.heightimg.width;
         var dv = 1/this.heightimg.height; 
+        var t1 = t/1000;
         for( var y=0; y<this.height; y++){
             cu=0;
             for(var x=0; x<this.width; x++){
-                this.heightimg.sample(cu+t/1000,cv,hvalue);
-                var vh = hvalue[0]/10;
+                this.heightimg.sample(cu+t1,cv,hvalue);
+                var vh = hvalue[0]/255*5;
+
                 this.hfield[hi++] = vh;
                 if(this.minH>vh) this.minH=vh;
                 if(this.maxH<vh) this.maxH=vh;

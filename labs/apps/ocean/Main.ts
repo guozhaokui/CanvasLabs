@@ -121,10 +121,10 @@ class OceanTest {
      * @param h {number} 数据的高
      * @param minv {number} 这个值对应黑色
      * @param maxv {number} 这个值对应白色
+     * @param bmpbuff {Uint8ClampedArray} 外部提供buffer，可以提高效率，不用每次都取屏幕的
      */
-    drawFloatArray2(x:number, y:number, v:Float32Array, w:number, h:number, minv:number,maxv:number, ctx:CanvasRenderingContext2D){
-        var imgdata = ctx.getImageData(x, y, w, h);
-        var pix = imgdata.data;
+    drawFloatArray2(x:number, y:number, v:Float32Array, w:number, h:number, minv:number,maxv:number, bmpbuff:ImageData, ctx:CanvasRenderingContext2D){
+        var pix = bmpbuff.data;
         var dv =maxv-minv;
         dv=255/dv;
         if(dv<=0){
@@ -143,7 +143,7 @@ class OceanTest {
                 vi++;
             }
         }
-        ctx.putImageData(imgdata, x, y);
+        ctx.putImageData(bmpbuff, x, y);
     }
 
     render(){
@@ -191,7 +191,7 @@ class OceanTest {
         var info={minv:0,maxv:0};
         var bp = this.testGW.getBoShuPu(info);
         console.log('min:'+info.minv+',max:'+info.maxv);
-        this.drawFloatArray2(300,0,bp,513,513,info.minv,info.maxv, ctx);
+        this.drawFloatArray2(300,0,bp,513,513,info.minv,info.maxv,this.testGW.bmpBuffer, ctx);
     }
 
     onRender = () => {

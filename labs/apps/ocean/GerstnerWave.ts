@@ -18,10 +18,12 @@ export class GerstnerWave{
     vertXNum=513;//2pi区间。n取值为[-256,256]
     vertYNum=513;
     boshupu:Float32Array;
+    bmpBuffer:ImageData;    //放在这里是为了提高效率，避免每次创建
     constructor(width:number, height:number){
         this.vertXNum = width;
         this.vertYNum = height;
         this.boshupu = new Float32Array(width*height);
+        this.bmpBuffer = new ImageData(width,height);
     }
     getZ(t:number){
         
@@ -46,10 +48,14 @@ export class GerstnerWave{
         var U10θ=this.U10θ;
         var U10x = U10*Math.cos(U10θ);
         var U10y = U10*Math.sin(U10θ);
+        var U102=U10*U10;
+        var U102π = U102*π;
+        var U104=U102*U102;
         var g=9.8;
         var gg = g*g;
-        var U102=U10*U10;
-        var U104=U102*U102;
+        var gg1 = gg*0.688;
+        var gg2 = gg1/U104;
+        var U102π1 = 0.0081/U102π;
         var dotv=0;//方向与主浪向的点积
         //var dotvx=0;
         //var dotvy=0;
@@ -70,13 +76,16 @@ export class GerstnerWave{
                 dotv = cx*U10x+cy*U10y;
                 //问题：朝向与主浪向相反的时候怎么办
                 if(dotv>=0){
-                var xx = cx*cx;
-                var kk = (xx+yy);//k^2
-                var k6 = kk*kk*kk;
-                var v = 0.0081/(π*k6*U102)*
-                    Math.exp(-(0.688*gg/U104/kk))*
-                    (dotv*dotv);
-                this.boshupu[ri++]=v;
+                    var xx = cx*cx;
+                    var kk = (xx+yy);//k^2
+                    var k6 = kk*kk*kk;
+                    /*
+                    var v = 0.0081/(π*k6*U102)*
+                        Math.exp(-(0.688*gg/U104/kk))*
+                        (dotv*dotv);
+                    */
+                    var v = U102π1/k6*Math.exp(-(gg2/kk))*(dotv*dotv);
+                    this.boshupu[ri++]=v;
                 }else{
                     this.boshupu[ri++]=0;
                 }

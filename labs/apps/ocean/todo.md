@@ -81,6 +81,9 @@ http://blog.csdn.net/jocyln9026/article/details/42103311
     2. Box–Muller 转换  https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
     3. ziggurat 算法
 
+瑞利分布
+    两个正态分布组成的向量的长度符合瑞利分布
+
 参数
 计算 H(k,t)
 

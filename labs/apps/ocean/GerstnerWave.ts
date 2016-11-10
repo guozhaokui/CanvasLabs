@@ -5,6 +5,42 @@
 
 */
 var π = Math.PI;
+
+/**
+ * 获取正态分布的随机数
+ * http://www.cnblogs.com/zztt/p/4025207.html
+ * 采用 Box-Muller 转换，用来把两个均匀分布的数变成正态分布
+ * y1 = sqrt( - 2 ln(u) ) cos( 2 pi v ) 
+ * y2 = sqrt( - 2 ln(u) ) sin( 2 pi v )
+ * 下面的函数采用了极坐标形式
+ * @param mean 期望值
+ * @param std_dev 标准差 
+ * 假如我们要获得均值为180，要68.26%左右的NPC身高都在[170,190]之内，即1个标准差范围内，因此标准差为10, getNumberInND(180,10) 调用
+ */
+function getNumberInND(mean,std_dev){
+    return mean+(randND()*std_dev);
+}
+
+/**
+ * 标准化的正态分布
+ */
+function randND(){
+    var u=0.0, v=0.0, w=0.0, c=0.0;
+    do{
+        //获得两个（-1,1）的独立随机变量
+        u=Math.random()*2-1.0;
+        v=Math.random()*2-1.0;
+        w=u*u+v*v;
+    }while(w==0.0||w>=1.0)
+    //这里就是 Box-Muller转换
+    c=Math.sqrt((-2*Math.log(w))/w);
+    //返回2个标准正态分布的随机数，封装进一个数组返回
+    //当然，因为这个函数运行较快，也可以扔掉一个
+    //return [u*c,v*c];
+    return u*c;
+}
+
+
 /**
  * k决定了波长，所以k和A的关系决定了波形的形状
  */

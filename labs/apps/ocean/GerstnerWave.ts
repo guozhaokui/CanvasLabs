@@ -18,9 +18,11 @@ export class GerstnerWave{
     vertXNum=513;//2pi区间。n取值为[-256,256]
     vertYNum=513;
     boshupu:Float32Array;
-    constructor(){
+    constructor(width:number, height:number){
+        this.vertXNum = width;
+        this.vertYNum = height;
+        this.boshupu = new Float32Array(width*height);
     }
-
     getZ(t:number){
         
     }
@@ -31,7 +33,9 @@ export class GerstnerWave{
      * 的公式。
      * 百度文库 基于FFT的海浪实时仿真方法_侯学隆
      */
-    getBoShuPu(width:number, height:number,info:{minv:number,maxv:number}):Float32Array{
+    getBoShuPu(info:{minv:number,maxv:number}):Float32Array{
+        var width=this.vertXNum;
+        var height = this.vertYNum;
         var stx = -π;
         var dx = 2*π/(width-1);
         var sty = π;//上下颠倒
@@ -51,7 +55,6 @@ export class GerstnerWave{
         //var dotvy=0;
         //var dotdx=0;
         //var dotdy;
-        var ret = new Float32Array(width*height);   //TODO 外面传入
         var ri=0;
         var minv=1e6;
         var maxv=-1e6;
@@ -73,9 +76,9 @@ export class GerstnerWave{
                 var v = 0.0081/(π*k6*U102)*
                     Math.exp(-(0.688*gg/U104/kk))*
                     (dotv*dotv);
-                ret[ri++]=v;
+                this.boshupu[ri++]=v;
                 }else{
-                    ret[ri++]=0;
+                    this.boshupu[ri++]=0;
                 }
                 if(minv>v)minv=v;
                 if(maxv<v)maxv=v;
@@ -87,7 +90,7 @@ export class GerstnerWave{
         }
         info.minv=minv;
         info.maxv=maxv;
-        return ret;
+        return this.boshupu;
     }
 
 }

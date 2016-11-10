@@ -33,7 +33,7 @@ class OceanTest {
     eyepos:Vector3;
     normValue='Normal:';
     curNorm=new Float32Array(3);
-    testGW = new GerstnerWave();
+    testGW = new GerstnerWave(513,513);
     constructor(canv: HTMLCanvasElement) {
         this.canv = canv;
         this.ctx = canv.getContext("2d");
@@ -189,9 +189,9 @@ class OceanTest {
         //TEST
         //this.testGW.U10+=0.01;
         var info={minv:0,maxv:0};
-        var bp = this.testGW.getBoShuPu(513,513,info);
+        var bp = this.testGW.getBoShuPu(info);
         console.log('min:'+info.minv+',max:'+info.maxv);
-        this.drawFloatArray2(300,0,bp,513,513,info.minv,info.maxv,ctx);
+        this.drawFloatArray2(300,0,bp,513,513,info.minv,info.maxv, ctx);
     }
 
     onRender = () => {

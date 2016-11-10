@@ -1,7 +1,12 @@
 
 //http://www.ituring.com.cn/article/121428
 
-function fft(dataArray) {
+export class complex{
+    real:number;
+    imag:number;
+}
+
+export function fft(dataArray):complex[]{
     // 复数乘法
     this.mul = function(a, b) {
         if(typeof(a)!=='object') {
@@ -109,7 +114,7 @@ function fft(dataArray) {
 /**
  * 逆变换
  */
-function ifft(dataArray) {
+export function ifft(dataArray) {
     for(var i=0, dataLen=dataArray.length; i<dataLen; i++) {
         if(typeof(dataArray[i])!='object'){
             dataArray[i] = {
@@ -130,7 +135,7 @@ function ifft(dataArray) {
 /**
  * 二维FFT
  */
-function fft2(dataArray, width:number, height:number) {
+export function fft2(dataArray, width:number, height:number) {
     var r = 1;
     var i = 1;
     while(i*2 < width) {

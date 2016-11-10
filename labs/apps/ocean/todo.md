@@ -25,6 +25,14 @@ Gerstner 模型
 xz为水平面，y向上
 x0向量和t是自变量，x0向量对应水平面的任意点
 
+范围  
+空间范围是 Lx,Lz， 分成N，M格子
+
+海浪的波长可达数百米，潮波的波长可以到数公里
+
+周期：例如4到8秒
+
+
 http://blog.csdn.net/jocyln9026/article/details/42103311
 
 波速  

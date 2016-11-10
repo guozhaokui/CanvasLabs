@@ -17,14 +17,14 @@ var π = Math.PI;
  * @param std_dev 标准差 
  * 假如我们要获得均值为180，要68.26%左右的NPC身高都在[170,190]之内，即1个标准差范围内，因此标准差为10, getNumberInND(180,10) 调用
  */
-function getNumberInND(mean,std_dev){
+function getNumberInND(mean,std_dev):number{
     return mean+(randND()*std_dev);
 }
 
 /**
  * 标准化的正态分布
  */
-function randND(){
+function randND():number{
     var u=0.0, v=0.0, w=0.0, c=0.0;
     do{
         //获得两个（-1,1）的独立随机变量
@@ -45,10 +45,6 @@ function randND(){
  * k决定了波长，所以k和A的关系决定了波形的形状
  */
 export class GerstnerWave{
-    A=10;   //半径
-    k=1;    //波数
-    ω=0;    //角频率
-    φ=0;    //初相角
     U10=11.5;  //10米处的风速
     U10θ=0;//-π/4; //风向
     vertXNum=0;//2pi区间。
@@ -56,26 +52,40 @@ export class GerstnerWave{
     worldWidth=128;    //水面的x宽度。单位是m
     worldHeight=128;   //水面的y宽度。单位是m
     boshupu:Float32Array;
+    Ak:Float32Array;
+    Hk:Float32Array;
     bmpBuffer:ImageData;    //放在这里是为了提高效率，避免每次创建
     constructor(width:number, height:number){
         this.vertXNum = width;
         this.vertYNum = height;
         this.boshupu = new Float32Array(width*height);
+        this.Ak = new Float32Array(width*height);
+        this.Hk = new Float32Array(width*height);
         this.bmpBuffer = new ImageData(width,height);
     }
     getZ(t:number){
         
     }
 
+    /**
+     * 计算高度场。
+     * 
+     */
+    calcHField(){
+
+    }
 
     /**
+     * 计算波数谱。
      * 这个采用 http://wenku.baidu.com/link?url=PW4ae4SwoRIK4dtZ4DjDHh01e3KgLjOtKsJwBnSJI9U4ODVaEfGT9qHAMQ8t14fX6F7chQKwKQwdQdVxwV2Z4SLMz6Xe5YZh66HzTxeG7Um
      * 的公式。
      * 百度文库 基于FFT的海浪实时仿真方法_侯学隆
      */
-    getBoShuPu(info:{minv:number,maxv:number}):Float32Array{
+    calcBoShuPu(info:{minv:number,maxv:number}):Float32Array{
         var width=this.vertXNum;
         var height = this.vertYNum;
+        //如果每个格子是1的话，K向量的取值范围就是-π到π
+        //否则就是 2*πp/Lx , p是格子数量，Lx是实际宽度
         var stx = -π;
         var dx = 2*π/(width-1);
         var sty = π;//上下颠倒
@@ -135,9 +145,76 @@ export class GerstnerWave{
             //dotvy+=U10y;
             cy+=dy;
         }
-        info.minv=minv;
-        info.maxv=maxv;
+        if(info){
+            info.minv=minv;
+            info.maxv=maxv;
+        }
         return this.boshupu;
     }
 
+    /**
+     * 计算振幅 A({kx,ky})
+     * 
+     */
+    calcA(info:{minv:number,maxv:number}):Float32Array{
+        this.calcBoShuPu(null);
+        var minv=1e6;
+        var maxv=-1e6;
+        var bi=0;
+        var deltaKx=2*π/this.worldWidth;
+        var deltaKz=2*π/this.worldHeight;
+        for(var ny=0; ny<this.vertYNum; ny++){
+            for( var nx=0; nx<this.vertXNum; nx++){
+                var v = this.boshupu[bi];
+                v = Math.sqrt(v*deltaKx*deltaKz);
+                if(v>maxv)maxv=v;
+                if(v<minv)minv=v;
+                this.Ak[bi]=v;
+                bi++;
+            }
+        }
+        if( info){
+            info.minv=minv;
+            info.maxv=maxv;
+        }
+        return this.Ak;
+    }
+
+    /**
+     * 计算傅里叶因子
+     * @param t {number} 时间
+     */
+    calcH(t:number,info:{minv:number,maxv:number}):Float32Array{
+        this.calcA(null);
+        var minv=1e6;
+        var maxv=-1e6;
+        var stx = -π;//TODO 不要限制为1 //如果每个格子是1的话，K向量的取值范围就是-π到π
+        var dx = 2*π/(this.vertXNum-1);
+        var sty = π;//上下颠倒
+        var dy = -2*π/(this.vertYNum-1);
+        var k=0;//波向量的长度
+        var cx = stx;
+        var cy = sty;
+        var yy = 0;
+        var sqrt2 = Math.sqrt(2);
+        var ai=0;
+        for(var ny=0; ny<this.vertYNum; ny++){
+            stx=cx;
+            yy = cy*cy;
+            for( var nx=0; nx<this.vertXNum; nx++){
+                var A = this.Ak[ai++];
+                var λr=randND();
+                var λi=randND();
+                k = Math.sqrt( cx*cx+yy);
+                var gkt = Math.sqrt(9.8*k)*t;
+                var Cv = Math.cos(gkt);
+                var Sv = Math.sin(gkt);
+                var Rv = A/sqrt2*(λr*Cv-λi*Sv);//H的实数部分
+                var Iv = A/sqrt2*(λr*Sv+λi*Cv);//H的虚数部分
+                cx+=dx;
+            }
+            cy+=dy;
+        }
+        return this.Hk;
+    }
 }

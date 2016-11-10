@@ -6,8 +6,8 @@ import {Sampler } from './sampler'
 import {Plane} from '../../runtime/runtimeMod/shape/Plane';
 import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
 import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
-import {GerstnerWave} from './GerstnerWave'
-
+import {GerstnerWave} from './GerstnerWave';
+import {complex,fft,ifft,fft2} from './FFT';
 
 function startAnimation(renderFunc: () => void) {
     function _render() {
@@ -124,6 +124,9 @@ class OceanTest {
      * @param bmpbuff {Uint8ClampedArray} 外部提供buffer，可以提高效率，不用每次都取屏幕的
      */
     drawFloatArray2(x:number, y:number, v:Float32Array, w:number, h:number, minv:number,maxv:number, bmpbuff:ImageData, ctx:CanvasRenderingContext2D){
+        if( bmpbuff==null){
+            bmpbuff=new ImageData(w,h);
+        }
         var pix = bmpbuff.data;
         var dv =maxv-minv;
         dv=255/dv;
@@ -144,6 +147,29 @@ class OceanTest {
             }
         }
         ctx.putImageData(bmpbuff, x, y);
+    }
+
+    testFFT(){
+        //制造一个白色方块
+        var data = new Float32Array(256*256);
+        for( var y=128-16; y<128+16; y++){
+            for( var x=128-16; x<128+16; x++){
+                data[y*256+x]=1;
+            }
+        }
+
+        var fftr = fft(data);
+        var fftrR = new Float32Array(256*256);
+        var fi=0;
+        var minv=1e6;
+        var maxv=-1e6;
+        fftr.forEach((v)=>{
+            var v1 = v.real;//Math.abs(v.real);
+            fftrR[fi++]=v1;
+            if(minv>v1)minv=v1;
+            if(maxv<v1)maxv=v1;
+        });
+        this.drawFloatArray2(300,0,fftrR,256,256,minv,maxv,null, this.ctx);
     }
 
     render(){
@@ -189,9 +215,11 @@ class OceanTest {
         //TEST
         //this.testGW.U10+=0.01;
         var info={minv:0,maxv:0};
-        var bp = this.testGW.getBoShuPu(info);
-        console.log('min:'+info.minv+',max:'+info.maxv);
-        this.drawFloatArray2(300,0,bp,this.testGW.vertXNum,this.testGW.vertYNum,info.minv,info.maxv,this.testGW.bmpBuffer, ctx);
+        //var bp = this.testGW.calcBoShuPu(info);
+        var bp = this.testGW.calcA(info);
+        //console.log('min:'+info.minv+',max:'+info.maxv);
+        this.drawFloatArray2(300,0,bp,this.testGW.vertXNum,this.testGW.vertYNum,info.minv,info.maxv/200,this.testGW.bmpBuffer, ctx);
+        //this.testFFT();
     }
 
     onRender = () => {

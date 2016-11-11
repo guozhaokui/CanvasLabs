@@ -4,6 +4,8 @@
 
 
 */
+import {ComplexArray, FFT, FFT2D} from './fft1';
+
 var π = Math.PI;
 
 /**
@@ -53,26 +55,21 @@ export class GerstnerWave{
     worldHeight=128;   //水面的y宽度。单位是m
     boshupu:Float32Array;
     Ak:Float32Array;
-    Hk:Float32Array;
+    Hk:ComplexArray;
+    HField:Float32Array;    //高度图
     bmpBuffer:ImageData;    //放在这里是为了提高效率，避免每次创建
     constructor(width:number, height:number){
         this.vertXNum = width;
         this.vertYNum = height;
-        this.boshupu = new Float32Array(width*height);
-        this.Ak = new Float32Array(width*height);
-        this.Hk = new Float32Array(width*height);
+        var num = width*height;
+        this.boshupu = new Float32Array(num);
+        this.Ak = new Float32Array(num);
+        this.Hk = new ComplexArray(num);
+        this.HField = new Float32Array(num);
         this.bmpBuffer = new ImageData(width,height);
     }
     getZ(t:number){
         
-    }
-
-    /**
-     * 计算高度场。
-     * 
-     */
-    calcHField(){
-
     }
 
     /**
@@ -184,7 +181,7 @@ export class GerstnerWave{
      * 计算傅里叶因子
      * @param t {number} 时间
      */
-    calcH(t:number,info:{minv:number,maxv:number}):Float32Array{
+    calcH(t:number,info:{minv:number,maxv:number}):ComplexArray{
         this.calcA(null);
         var minv=1e6;
         var maxv=-1e6;
@@ -198,6 +195,9 @@ export class GerstnerWave{
         var yy = 0;
         var sqrt2 = Math.sqrt(2);
         var ai=0;
+        var hi=0;
+        var real=this.Hk.real;
+        var imag=this.Hk.imag;
         for(var ny=0; ny<this.vertYNum; ny++){
             stx=cx;
             yy = cy*cy;
@@ -209,12 +209,39 @@ export class GerstnerWave{
                 var gkt = Math.sqrt(9.8*k)*t;
                 var Cv = Math.cos(gkt);
                 var Sv = Math.sin(gkt);
-                var Rv = A/sqrt2*(λr*Cv-λi*Sv);//H的实数部分
-                var Iv = A/sqrt2*(λr*Sv+λi*Cv);//H的虚数部分
+                var t1 = A/sqrt2;
+                var Rv = t1*(λr*Cv-λi*Sv);//H的实数部分
+                var Iv = t1*(λr*Sv+λi*Cv);//H的虚数部分
+                real[hi]=Rv;
+                imag[hi]=Iv;
+                hi++;
                 cx+=dx;
             }
             cy+=dy;
         }
         return this.Hk;
+    }
+
+    /**
+     * 计算高度场。
+     * 
+     */
+    calcHField(t:number,info:{minv:number,maxv:number}):Float32Array{
+        var H = this.calcH(t,null);
+        var compHField = FFT2D(this.Hk,this.vertXNum,this.vertYNum,true);
+        this.HField = compHField.real;
+        var minv=1e6;
+        var maxv=-1e6;
+        this.HField.forEach((v,i,arr)=>{
+            v = Math.abs(v);
+            arr[i]=v;
+            if(v<minv)minv=v;
+            if(v>maxv)maxv=v;
+        });
+        if(info){
+            info.minv=minv;
+            info.maxv=maxv;
+        }
+        return this.HField;
     }
 }

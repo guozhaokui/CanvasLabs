@@ -263,10 +263,11 @@ class OceanTest {
         //this.testGW.U10+=0.01;
         var info={minv:0,maxv:0};
         //var bp = this.testGW.calcBoShuPu(info);
-        var bp = this.testGW.calcA(info);
-        //console.log('min:'+info.minv+',max:'+info.maxv);
-        //this.drawFloatArray2(300,0,bp,this.testGW.vertXNum,this.testGW.vertYNum,info.minv,info.maxv/200,this.testGW.bmpBuffer, ctx);
-        this.testFFT();
+        //var bp = this.testGW.calcA(info);
+        var bp = this.testGW.calcHField(Date.now()/20000,info);
+        console.log('min:'+info.minv+',max:'+info.maxv);
+        this.drawFloatArray2(300,0,bp,this.testGW.vertXNum,this.testGW.vertYNum,info.minv,info.maxv,this.testGW.bmpBuffer, ctx);
+        //this.testFFT();
     }
 
     onRender = () => {

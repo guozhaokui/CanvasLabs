@@ -6,6 +6,7 @@ var cos = Math.cos;
 import {Sampler } from './sampler'
 import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
 import {CosWave,WaveData} from './CosWave'
+import {GerstnerWave} from './GerstnerWave';
 
 /**
  * x,y采用图像坐标
@@ -22,6 +23,7 @@ export class Ocean{
     sky:Sampler;    //要求格式为360度全景图
     wavedata:WaveData[];
     waveGen1:CosWave;
+    waveGen2 = new GerstnerWave(128,128);
     heightimg:Sampler;
     //θπφωλ
     constructor(buff:Uint8ClampedArray, w:number,h:number){
@@ -76,6 +78,20 @@ export class Ocean{
         this.hfield = this.waveGen1.update(t/1000);
         this.minH = this.waveGen1.minh;
         this.maxH = this.waveGen1.maxh;
+    }
+    genHeight3(t:number){
+        t/=10000;
+        var info={minv:0,maxv:0};
+        var hf = this.waveGen2.calcHField(t,info);
+        var hi=0;
+        var wavW=this.waveGen2.vertXNum;
+        for(var y=0; y<this.height;y++){
+            for(var x=0; x<this.width;x++){
+                this.hfield[hi++]=hf[x%wavW+(y%wavW)*wavW]*100;
+            }
+        }
+        this.minH = info.minv;
+        this.maxH = info.maxv;
     }
     /**
      * 计算法线

@@ -179,6 +179,7 @@ export class GerstnerWave{
 
     /**
      * 计算傅里叶因子
+     * 注意 这个生成的结果是以中心为原点的。实际使用的时候需要偏移
      * @param t {number} 时间
      */
     calcH(t:number,info:{minv:number,maxv:number}):ComplexArray{
@@ -214,11 +215,34 @@ export class GerstnerWave{
                 var Iv = t1*(λr*Sv+λi*Cv);//H的虚数部分
                 real[hi]=Rv;
                 imag[hi]=Iv;
+                if(minv>Rv)minv=Rv;
+                if(maxv<Rv)maxv=Rv;
                 hi++;
                 cx+=dx;
             }
             cy+=dy;
         }
+        if(info){
+            info.minv=minv;
+            info.maxv=maxv;
+        }
+
+        //偏移一下，把原点移到左上角
+        var NH = new ComplexArray(this.Hk.length);
+        var w = this.vertXNum;
+        var off = w/2;          //TODO 这里不太好，而且要避免出现小数
+        var nhi=0;
+        for(var y=0; y<this.vertYNum; y++){
+            for(var x=0; x<this.vertXNum; x++){
+                var cx = (x+off)%w;
+                var cy = (y+off)%w;
+                var ci = cx+cy*w;
+                NH.real[nhi]=this.Hk.real[ci];
+                NH.imag[nhi]=this.Hk.imag[ci];
+                nhi++;
+            }
+        }
+        this.Hk = NH;
         return this.Hk;
     }
 
@@ -228,7 +252,7 @@ export class GerstnerWave{
      */
     calcHField(t:number,info:{minv:number,maxv:number}):Float32Array{
         var H = this.calcH(t,null);
-        var compHField = FFT2D(this.Hk,this.vertXNum,this.vertYNum,true);
+        var compHField = FFT2D(H,this.vertXNum,this.vertYNum,true);
         this.HField = compHField.real;
         var minv=1e6;
         var maxv=-1e6;

@@ -45,7 +45,7 @@ export class ComplexArray{
 export function FFT(input:ComplexArray, inverse:boolean) {
     var n = input.length
 
-    if (n & (n - 1)) {
+    if (n & (n - 1)) {//如果不是2的n次方
         return FFT_Recursive(input, inverse)
     } else {
         return FFT_2_Iterative(input, inverse)
@@ -119,7 +119,7 @@ function FFT_Recursive(input:ComplexArray, inverse:boolean) {
     return input
 }
 
-function FFT_2_Iterative(input, inverse) {
+function FFT_2_Iterative(input:ComplexArray, inverse:boolean) {
     var
         n = input.length,
         // Counters.

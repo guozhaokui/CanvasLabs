@@ -80,18 +80,19 @@ export class Ocean{
         this.maxH = this.waveGen1.maxh;
     }
     genHeight3(t:number){
-        t/=10000;
+        t/=20000;
         var info={minv:0,maxv:0};
         var hf = this.waveGen2.calcHField(t,info);
         var hi=0;
         var wavW=this.waveGen2.vertXNum;
+        var scale = 500;
         for(var y=0; y<this.height;y++){
             for(var x=0; x<this.width;x++){
-                this.hfield[hi++]=hf[x%wavW+(y%wavW)*wavW]*100;
+                this.hfield[hi++]=hf[x%wavW+(y%wavW)*wavW]*scale;
             }
         }
-        this.minH = info.minv;
-        this.maxH = info.maxv;
+        this.minH = info.minv*scale;
+        this.maxH = info.maxv*scale;
     }
     /**
      * 计算法线

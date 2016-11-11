@@ -204,8 +204,8 @@ export class GerstnerWave{
             yy = cy*cy;
             for( var nx=0; nx<this.vertXNum; nx++){
                 var A = this.Ak[ai++];
-                var λr=randND();
-                var λi=randND();
+                var λr=1;//randND();
+                var λi=0;//randND();
                 k = Math.sqrt( cx*cx+yy);
                 var gkt = Math.sqrt(9.8*k)*t;
                 var Cv = Math.cos(gkt);
@@ -257,7 +257,7 @@ export class GerstnerWave{
         var minv=1e6;
         var maxv=-1e6;
         this.HField.forEach((v,i,arr)=>{
-            v = Math.abs(v);
+            //v = Math.abs(v);
             arr[i]=v;
             if(v<minv)minv=v;
             if(v>maxv)maxv=v;

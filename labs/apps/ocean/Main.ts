@@ -222,11 +222,11 @@ class OceanTest {
     render(){
         this.ctx.save();
         //this.ctx.drawImage(this.img,0,0);
-        this.ocean.genHeight3(this.tm++);
+        this.ocean.genHeight3(Date.now());
         this.ocean.genNormal();
         //this.ocean.renderHeight();
-        this.ocean.renderNormal();
-        //this.ocean.render(this.eyepos);
+        //this.ocean.renderNormal();
+        this.ocean.render(this.eyepos);
         this.ocean.showXWave(this.ctx, 0,300);
         this.ctx.putImageData(this.imgData, 0, 0);
         this.ctx.fillStyle='white';
@@ -263,11 +263,11 @@ class OceanTest {
         //this.testGW.U10+=0.01;
         var info={minv:0,maxv:0};
         //var bp = this.testGW.calcBoShuPu(info);
-        //var bp = this.testGW.calcA(info);
+        var bp = this.testGW.calcA(info);
         //var bp = this.testGW.calcH(0,info).real;
         //var bp = this.testGW.calcHField(Date.now()/20000,info);
-        //console.log('min:'+info.minv+',max:'+info.maxv);
-        //this.drawFloatArray2(300,0,bp,this.testGW.vertXNum,this.testGW.vertYNum,0,0.0002,this.testGW.bmpBuffer, ctx);
+        console.log('min:'+info.minv+',max:'+info.maxv);
+        this.drawFloatArray2(300,0,bp,this.testGW.vertXNum,this.testGW.vertYNum,info.minv,info.maxv,this.testGW.bmpBuffer, ctx);
         //this.testFFT();
     }
 

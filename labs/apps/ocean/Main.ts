@@ -8,6 +8,7 @@ import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
 import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
 import {GerstnerWave} from './GerstnerWave';
 import {complex,fft,ifft,fft2} from './FFT';
+import {ComplexArray, FFT, FFT2D} from './fft1';
 
 function startAnimation(renderFunc: () => void) {
     function _render() {
@@ -149,27 +150,73 @@ class OceanTest {
         ctx.putImageData(bmpbuff, x, y);
     }
 
-    testFFT(){
+    testFFT1(){
         //制造一个白色方块
+        var w=256;
+        var cmparr = new ComplexArray(2)
         var data = new Float32Array(256*256);
-        for( var y=128-16; y<128+16; y++){
-            for( var x=128-16; x<128+16; x++){
-                data[y*256+x]=1;
+        for( var y=128-16; y<=128+16; y++){
+            for( var x=128-16; x<=128+16; x++){
+                data[y*w+x]=1;
             }
         }
 
-        var fftr = fft(data);
+        var fftr = fft2(data,w,w);
         var fftrR = new Float32Array(256*256);
         var fi=0;
         var minv=1e6;
         var maxv=-1e6;
-        fftr.forEach((v)=>{
-            var v1 = v.real;//Math.abs(v.real);
-            fftrR[fi++]=v1;
-            if(minv>v1)minv=v1;
-            if(maxv<v1)maxv=v1;
-        });
-        this.drawFloatArray2(300,0,fftrR,256,256,minv,maxv,null, this.ctx);
+        var cx=w/2;
+        var cy=w/2;
+        for(var y=0; y<w; y++){
+            var cyw=cy*w;
+            for(var x=0; x<w; x++){
+                var v = Math.abs(fftr[cx+cyw].real);
+                if(minv>v)minv=v;
+                if(maxv<v)maxv=v;
+                fftrR[fi++]=v;
+                cx++;
+                cx%=w;
+            }
+            cy++;
+            cy%=w;
+        }
+        this.drawFloatArray2(300,0,fftrR,w,w,minv,maxv/4,null, this.ctx);
+    }
+
+    testFFT(){
+        //制造一个白色方块
+        var w=256;
+        var data = new Float32Array(256*256);
+        for( var y=128-16; y<=128+16; y++){
+            for( var x=128-16; x<=128+16; x++){
+                data[y*w+x]=1;
+            }
+        }
+        var cmparr = new ComplexArray(w*w);
+        cmparr.real=data;
+        var fftr0 = FFT2D(cmparr,w,w,false);
+        var fftr1 = FFT2D(fftr0,w,w,true);
+        var fftrR = new Float32Array(w*w);
+        var fi=0;
+        var minv=1e6;
+        var maxv=-1e6;
+        var cx=w/2;
+        var cy=w/2;
+        for(var y=0; y<w; y++){
+            var cyw=cy*w;
+            for(var x=0; x<w; x++){
+                var v = Math.abs(fftr1.real[cx+cyw]);
+                if(minv>v)minv=v;
+                if(maxv<v)maxv=v;
+                fftrR[fi++]=v;
+                cx++;
+                cx%=w;
+            }
+            cy++;
+            cy%=w;
+        }
+        this.drawFloatArray2(300,0,fftrR,w,w,minv,maxv/4,null, this.ctx);
     }
 
     render(){

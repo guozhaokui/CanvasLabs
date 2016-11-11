@@ -8,7 +8,7 @@ export class complex{
 
 export function fft(dataArray):complex[]{
     // 复数乘法
-    this.mul = function(a, b) {
+     function mul(a, b) {
         if(typeof(a)!=='object') {
             a = {real: a, imag: 0}
         }
@@ -22,7 +22,7 @@ export function fft(dataArray):complex[]{
     };
 
     // 复数加法
-    this.add = function(a, b) {
+    function add(a, b) {
         if(typeof(a)!=='object') {
             a = {real: a, imag: 0}
         }
@@ -36,7 +36,7 @@ export function fft(dataArray):complex[]{
     };
 
     // 复数减法
-    this.sub = function(a, b) {
+    function sub(a, b) {
         if(typeof(a)!=='object') {
             a = {real: a, imag: 0}
         }
@@ -50,7 +50,7 @@ export function fft(dataArray):complex[]{
     };
 
     // 倒位序排列
-    this.sort = function(data, r) {
+    function sort(data, r) {
         if(data.length <=2) {
             return data;
         }
@@ -85,7 +85,7 @@ export function fft(dataArray):complex[]{
     }
 
     // 倒位序处理
-    dataArray = this.sort(dataArray, r);
+    dataArray = sort(dataArray, r);
 
     // 计算加权系数w
     var w = [];
@@ -101,9 +101,9 @@ export function fft(dataArray):complex[]{
         for(var j=0; j<group; j++) { // 组循环
             var step = 2*distance*j;
             for(var k=0; k<unit; k++) { // 计算单元循环
-                var temp = this.mul(dataArray[step+k+distance], w[count*k/2/distance]);
-                dataArray[step+k+distance] = this.sub(dataArray[step+k], temp);
-                dataArray[step+k] = this.add(dataArray[step+k], temp);
+                var temp = mul(dataArray[step+k+distance], w[count*k/2/distance]);
+                dataArray[step+k+distance] = sub(dataArray[step+k], temp);
+                dataArray[step+k] = add(dataArray[step+k], temp);
             }
         }
     }

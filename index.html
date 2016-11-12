@@ -10,21 +10,32 @@
     <script>
         window.hasNodeJS = navigator.userAgent.indexOf('Electron') > 0;
     </script>
+    <script src="jquery-3.1.1.min.js"></script>
     <script src="./labs/runtime/3rdjs/Ease.js"></script>
     <script src="./labs/runtime/3rdjs/gl-matrix.js"></script>
     <script src="./labs/apploader/appLoader.js"></script>
 </head>
 
 <body>
-    <div class='rootdiv'>
-        <canvas width=1024 height=1024 id="myCanvas"></canvas>
+    <div class='rootdiv' id='root' style='display:flex'>
+        <canvas width=800 height=1024 id="myCanvas"></canvas>
+        <div style='width:100%;height:100%;display:flex;justify-content:flex-end;'>
+            <div id='panelcontainer' style='background:#909090;width:200px;height:100%;'>
+                <div style='width:100%;display:flex'>
+                    风速<input id='slide1' type="range" name="points" min="1" max="100" />
+                </div>
+                <div style='width:100%;display:flex'>
+                    缩放<input id='slide1' type="range" name="points" min="1" max="100" />
+                </div>
+            </div>
+        </div>
     </div>
     <script type="text/javascript">
         'use strict';
         //startApp('imgRec');
         //startApp('accTest');
         //startApp('CanvasTest');
-        startApp('ocean');
+        startApp('UILib');
         //startApp('webglLine');
     </script>
 </body>

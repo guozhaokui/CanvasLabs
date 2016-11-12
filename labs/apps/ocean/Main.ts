@@ -6,7 +6,7 @@ import {Sampler } from './sampler'
 import {Plane} from '../../runtime/runtimeMod/shape/Plane';
 import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
 import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
-import {GerstnerWave} from './GerstnerWave';
+import {GerstnerWave,test1} from './GerstnerWave';
 import {complex,fft,ifft,fft2} from './FFT';
 import {ComplexArray, FFT, FFT2D} from './fft1';
 
@@ -260,7 +260,12 @@ class OceanTest {
         //TEST
         //TEST
         var outxy = this.func_p_m_ittc_pu([0.3,0.01,4]);
-        this.drawPlot(0,600,outxy[0],outxy[1],ctx);
+        //this.drawPlot(0,600,outxy[0],outxy[1],ctx);
+        var xv = new Float32Array(100);
+        for(var i=0; i<100; i++){
+            xv[i]=i;
+        }
+        this.drawPlot(0,600,xv,test1(),ctx);
         //TEST
         //this.testGW.U10+=0.01;
         this.testGW.U10=windspeed;

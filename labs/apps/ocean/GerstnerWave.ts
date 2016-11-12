@@ -42,7 +42,16 @@ function randND():number{
     return u*c;
 }
 
-
+export function test1():Float32Array{
+    var ret = new Float32Array(100);
+    ret.forEach((v,i)=>{
+        for(var n=0; n<100; n++){
+            var v = randND();
+            ret[50+Math.floor(v*10)]+=0.01;
+        }
+    });
+    return ret;
+}
 /**
  * k决定了波长，所以k和A的关系决定了波形的形状
  */

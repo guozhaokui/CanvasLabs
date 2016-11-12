@@ -7,13 +7,15 @@
     <title>HTML App</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
     <base id="htmlbase" /><!-- 为了在app中方便处理图片url  -->
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="jquery-3.1.1.min.js"></script>
     <script>
         window.hasNodeJS = navigator.userAgent.indexOf('Electron') > 0;
     </script>
-    <script src="jquery-3.1.1.min.js"></script>
     <script src="./labs/runtime/3rdjs/Ease.js"></script>
     <script src="./labs/runtime/3rdjs/gl-matrix.js"></script>
     <script src="./labs/apploader/appLoader.js"></script>
+    <script>if (window.module) module = window.module;</script>
 </head>
 
 <body>
@@ -22,7 +24,7 @@
         <div style='width:100%;height:100%;display:flex;justify-content:flex-end;'>
             <div id='panelcontainer' style='background:#909090;width:200px;height:100%;'>
                 <div style='width:100%;display:flex'>
-                    风速<input id='slide1' type="range" name="points" min="1" max="100" />
+                    风速<input id='slide1' type="range" name="points" min="1" max="100" onchange="onWindSpeedChage()" />
                 </div>
                 <div style='width:100%;display:flex'>
                     缩放<input id='slide1' type="range" name="points" min="1" max="100" />
@@ -30,12 +32,17 @@
             </div>
         </div>
     </div>
+    <script>
+        function onWindSpeedChage(){
+            //alert('kk '+$('#slide1').value)
+        }
+    </script>
     <script type="text/javascript">
         'use strict';
         //startApp('imgRec');
         //startApp('accTest');
         //startApp('CanvasTest');
-        startApp('UILib');
+        startApp('ocean');
         //startApp('webglLine');
     </script>
 </body>

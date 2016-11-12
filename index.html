@@ -24,7 +24,7 @@
         <div style='width:100%;height:100%;display:flex;justify-content:flex-end;'>
             <div id='panelcontainer' style='background:#909090;width:200px;height:100%;'>
                 <div style='width:100%;display:flex'>
-                    风速<input id='slide1' type="range" name="points" min="1" max="100" onchange="onWindSpeedChage()" />
+                    风速<input id='slide1' type="range" name="points" min="1" max="100" oninput="onWindSpeedChage(this.value)" />
                 </div>
                 <div style='width:100%;display:flex'>
                     缩放<input id='slide1' type="range" name="points" min="1" max="100" />
@@ -33,8 +33,12 @@
         </div>
     </div>
     <script>
-        function onWindSpeedChage(){
-            //alert('kk '+$('#slide1').value)
+        tmpgconfig={
+            slide1:0,
+            slide2:0
+        }
+        function onWindSpeedChage(v){
+            tmpgconfig.slide1=v;
         }
     </script>
     <script type="text/javascript">

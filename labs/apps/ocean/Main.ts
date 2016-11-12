@@ -222,6 +222,8 @@ class OceanTest {
     render(){
         this.ctx.save();
         //this.ctx.drawImage(this.img,0,0);
+        var windspeed=eval('tmpgconfig.slide1') as number;
+        this.ocean.waveGen2.U10 =windspeed;
         this.ocean.genHeight3(Date.now());
         this.ocean.genNormal();
         //this.ocean.renderHeight();
@@ -261,10 +263,11 @@ class OceanTest {
         this.drawPlot(0,600,outxy[0],outxy[1],ctx);
         //TEST
         //this.testGW.U10+=0.01;
+        this.testGW.U10=windspeed;
         var info={minv:0,maxv:0};
         //var bp = this.testGW.calcBoShuPu(info);
-        var bp = this.testGW.calcA(info);
-        //var bp = this.testGW.calcH(0,info).real;
+        //var bp = this.testGW.calcA(info);
+        var bp = this.testGW.calcH(0,info).real;
         //var bp = this.testGW.calcHField(Date.now()/20000,info);
         console.log('min:'+info.minv+',max:'+info.maxv);
         this.drawFloatArray2(300,0,bp,this.testGW.vertXNum,this.testGW.vertYNum,info.minv,info.maxv,this.testGW.bmpBuffer, ctx);

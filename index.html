@@ -27,7 +27,7 @@
                     风速<input id='slide1' type="range" name="points" min="1" max="100" oninput="onWindSpeedChage(this.value)" />
                 </div>
                 <div style='width:100%;display:flex'>
-                    缩放<input id='slide1' type="range" name="points" min="1" max="100" />
+                    风向<input id='slide1' type="range" name="points" min="1" max="100" oninput="onWindDirChage(this.value)"/>
                 </div>
             </div>
         </div>
@@ -39,6 +39,10 @@
         }
         function onWindSpeedChage(v){
             tmpgconfig.slide1=v;
+        }
+
+        function onWindDirChage(v){
+            tmpgconfig.slide2=v;
         }
     </script>
     <script type="text/javascript">

@@ -67,6 +67,9 @@ export class GerstnerWave{
     Hk:ComplexArray;
     HField:Float32Array;    //高度图
     bmpBuffer:ImageData;    //放在这里是为了提高效率，避免每次创建
+    lastU10=-1;
+    lastU10θ=-1;
+    ndrands:Float32Array;
     constructor(width:number, height:number){
         this.vertXNum = width;
         this.vertYNum = height;
@@ -76,6 +79,10 @@ export class GerstnerWave{
         this.Hk = new ComplexArray(num);
         this.HField = new Float32Array(num);
         this.bmpBuffer = new ImageData(width,height);
+        this.ndrands = new Float32Array(num*2);
+        this.ndrands.forEach((v,i,arr)=>{
+            arr[i] = randND();
+        });
     }
     getZ(t:number){
         
@@ -163,6 +170,11 @@ export class GerstnerWave{
      * 
      */
     calcA(info:{minv:number,maxv:number}):Float32Array{
+        if(this.lastU10θ==this.U10θ && this.lastU10==this.U10 )
+            return this.Ak;
+        this.lastU10=this.U10;
+        this.lastU10θ=this.U10θ;
+        
         this.calcBoShuPu(null);
         var minv=1e6;
         var maxv=-1e6;
@@ -208,13 +220,14 @@ export class GerstnerWave{
         var hi=0;
         var real=this.Hk.real;
         var imag=this.Hk.imag;
+        var ndi=0;
         for(var ny=0; ny<this.vertYNum; ny++){
             stx=cx;
             yy = cy*cy;
             for( var nx=0; nx<this.vertXNum; nx++){
                 var A = this.Ak[ai++];
-                var λr=1;//randND();
-                var λi=0;//randND();
+                var λr=this.ndrands[ndi++];// randND();
+                var λi=this.ndrands[ndi++];
                 k = Math.sqrt( cx*cx+yy);
                 var gkt = Math.sqrt(9.8*k)*t;
                 var Cv = Math.cos(gkt);

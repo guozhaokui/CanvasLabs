@@ -222,8 +222,11 @@ class OceanTest {
     render(){
         this.ctx.save();
         //this.ctx.drawImage(this.img,0,0);
-        var windspeed=eval('tmpgconfig.slide1') as number;
+        var gconfig = (<any>window).tmpgconfig as {slide1:number, slide2:number};
+        var windspeed=gconfig.slide1;
+        var winddir = gconfig.slide2*Math.PI*2/100;
         this.ocean.waveGen2.U10 =windspeed;
+        this.ocean.waveGen2.U10θ=winddir;
         this.ocean.genHeight3(Date.now());
         this.ocean.genNormal();
         //this.ocean.renderHeight();
@@ -248,13 +251,14 @@ class OceanTest {
         //TEST
         //this.testGW.U10+=0.01;
         this.testGW.U10=windspeed;
+        this.testGW.U10θ=winddir;
         var info={minv:0,maxv:0};
         //var bp = this.testGW.calcBoShuPu(info);
         //var bp = this.testGW.calcA(info);
         var bp = this.testGW.calcH(0,info).real;
         //var bp = this.testGW.calcHField(Date.now()/20000,info);
         console.log('min:'+info.minv+',max:'+info.maxv);
-        this.drawFloatArray2(300,0,bp,this.testGW.vertXNum,this.testGW.vertYNum,info.minv,info.maxv,this.testGW.bmpBuffer, ctx);
+        this.drawFloatArray2(300,0,bp,this.testGW.vertXNum,this.testGW.vertYNum,0,0.001,this.testGW.bmpBuffer, ctx);
         //this.testFFT();
     }
 

@@ -290,4 +290,34 @@ export class GerstnerWave{
         }
         return this.HField;
     }
+
+    /**
+     * 计算每个点的新的位置
+     */
+    calcX0Pos(t:number,info:{minv:number,maxv:number}){
+        var H = this.calcH(t,null);
+        var compHField = FFT2D(H,this.vertXNum,this.vertYNum,true);
+        var pos = new Float32Array(compHField.real.length*3);//x,y,z
+        var minv=1e6;
+        var maxv=-1e6;
+        /**
+         * 水平面的两个点为x,z
+         * x=x0+kx*compHField.imag
+         * z=z0+kz*compHField.imag
+         * 高度为
+         * y=y0+compHField.real
+         */
+
+        for(var y=0; y<this.vertYNum; y++){
+            for(var x=0; x<this.vertXNum; x++){
+                //TODO
+                //if(v<minv)minv=v;
+                //if(v>maxv)maxv=v;
+            }
+        }        
+        if(info){
+            info.minv=minv;
+            info.maxv=maxv;
+        }
+    }    
 }

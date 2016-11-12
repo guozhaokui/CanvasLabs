@@ -85,7 +85,7 @@ export class Ocean{
         var hf = this.waveGen2.calcHField(t,info);
         var hi=0;
         var wavW=this.waveGen2.vertXNum;
-        var scale = 500;
+        var scale = 200;
         for(var y=0; y<this.height;y++){
             for(var x=0; x<this.width;x++){
                 this.hfield[hi++]=hf[x%wavW+(y%wavW)*wavW]*scale;

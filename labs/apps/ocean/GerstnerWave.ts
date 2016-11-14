@@ -70,6 +70,16 @@ export class GerstnerWave{
     lastU10=-1;
     lastU10θ=-1;
     ndrands:Float32Array;
+    vertData:Float32Array;       //为了效率，这里保存格子的一些信息，例如长度，随机等信息。
+    vertDataEleNum=6;       //每个顶点保存的float的个数
+                            //0 length |k|
+                            //1 k*k
+                            //2 k^6
+                            //3 Math.sqrt(9.8*k)
+                            //4 λr
+                            //5 λi
+                            //128x128=384k
+
     constructor(width:number, height:number){
         this.vertXNum = width;
         this.vertYNum = height;
@@ -79,6 +89,32 @@ export class GerstnerWave{
         this.Hk = new ComplexArray(num);
         this.HField = new Float32Array(num);
         this.bmpBuffer = new ImageData(width,height);
+        this.vertData = new Float32Array(num*this.vertDataEleNum);
+
+        //初始化预计算的数据
+        var stx = -π;//TODO 不要限制为1 //如果每个格子是1的话，K向量的取值范围就是-π到π
+        var dx = 2*π/(this.vertXNum-1);
+        var sty = π;//上下颠倒
+        var dy = -2*π/(this.vertYNum-1);
+        var k=0;//波向量的长度
+        var cx = stx;
+        var cy = sty;
+        var prei=0;
+        for(var y=0; y<height; y++){
+            var yy = cy*cy;
+            for( var x=0; x<width; x++){
+                var ll = cx*cx+yy;
+                var l = Math.sqrt(ll);
+                this.vertData[prei++]=l;
+                this.vertData[prei++]=ll;
+                this.vertData[prei++]=ll*ll*ll;
+                this.vertData[prei++]=Math.sqrt(9.8*l);
+                this.vertData[prei++]=randND();
+                this.vertData[prei++]=randND();
+                cx+=dx;
+            }
+            cy+=dy;
+        }
         this.ndrands = new Float32Array(num*2);
         this.ndrands.forEach((v,i,arr)=>{
             arr[i] = randND();
@@ -181,10 +217,11 @@ export class GerstnerWave{
         var bi=0;
         var deltaKx=2*π/this.worldWidth;
         var deltaKz=2*π/this.worldHeight;
+        var dkxdkz = deltaKx*deltaKz;
         for(var ny=0; ny<this.vertYNum; ny++){
             for( var nx=0; nx<this.vertXNum; nx++){
                 var v = this.boshupu[bi];
-                v = Math.sqrt(v*deltaKx*deltaKz);
+                v = Math.sqrt(v*dkxdkz);
                 if(v>maxv)maxv=v;
                 if(v<minv)minv=v;
                 this.Ak[bi]=v;

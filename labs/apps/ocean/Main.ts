@@ -227,6 +227,7 @@ class OceanTest {
         var winddir = gconfig.slide2*Math.PI*2/100;
         this.ocean.waveGen2.U10 =windspeed;
         this.ocean.waveGen2.U10θ=winddir;
+        this.ocean.waveGen2.preCalc();
         this.ocean.genHeight3(Date.now());
         this.ocean.genNormal();
         //this.ocean.renderHeight();
@@ -252,6 +253,7 @@ class OceanTest {
         //this.testGW.U10+=0.01;
         this.testGW.U10=windspeed;
         this.testGW.U10θ=winddir;
+        this.testGW.preCalc();
         var info={minv:0,maxv:0};
         //var bp = this.testGW.calcBoShuPu(info);
         //var bp = this.testGW.calcA(info);

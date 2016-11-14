@@ -58,6 +58,8 @@ export function test1():Float32Array{
 export class GerstnerWave{
     U10=11.5;  //10米处的风速
     U10θ=0;//-π/4; //风向
+    U10x=1;
+    U10y=0;
     vertXNum=0;//2pi区间。
     vertYNum=0;
     worldWidth=128;    //水面的x宽度。单位是m
@@ -69,16 +71,17 @@ export class GerstnerWave{
     bmpBuffer:ImageData;    //放在这里是为了提高效率，避免每次创建
     lastU10=-1;
     lastU10θ=-1;
-    ndrands:Float32Array;
+    needReRnd=true;
     vertData:Float32Array;       //为了效率，这里保存格子的一些信息，例如长度，随机等信息。
-    vertDataEleNum=6;       //每个顶点保存的float的个数
+    vertDataEleNum=7;       //每个顶点保存的float的个数
                             //0 length |k|
                             //1 k*k
                             //2 k^6
                             //3 Math.sqrt(9.8*k)
                             //4 λr
                             //5 λi
-                            //128x128=384k
+                            //6 dot(k,U10)
+                            //128x128=xxxk
 
     constructor(width:number, height:number){
         this.vertXNum = width;
@@ -90,8 +93,25 @@ export class GerstnerWave{
         this.HField = new Float32Array(num);
         this.bmpBuffer = new ImageData(width,height);
         this.vertData = new Float32Array(num*this.vertDataEleNum);
+        this.preCalc();
+    }
 
+    preCalc(){
+        if(this.lastU10θ==this.U10θ && this.lastU10==this.U10 )
+            return ;
+        this.lastU10=this.U10;
+        this.lastU10θ=this.U10θ;
+                
         //初始化预计算的数据
+        var gg = 9.8*9.8;
+        var U102=this.U10*this.U10;
+        var U102π = U102*π;
+        var U104=U102*U102;
+        var g=9.8;
+        var gg = g*g;
+        var gg1 = gg*0.688;
+        var gg2 = gg1/U104;
+        
         var stx = -π;//TODO 不要限制为1 //如果每个格子是1的话，K向量的取值范围就是-π到π
         var dx = 2*π/(this.vertXNum-1);
         var sty = π;//上下颠倒
@@ -100,28 +120,36 @@ export class GerstnerWave{
         var cx = stx;
         var cy = sty;
         var prei=0;
-        for(var y=0; y<height; y++){
+        for(var y=0; y<this.vertYNum; y++){
             var yy = cy*cy;
-            for( var x=0; x<width; x++){
+            for( var x=0; x<this.vertXNum; x++){
                 var ll = cx*cx+yy;
                 var l = Math.sqrt(ll);
                 this.vertData[prei++]=l;
                 this.vertData[prei++]=ll;
                 this.vertData[prei++]=ll*ll*ll;
                 this.vertData[prei++]=Math.sqrt(9.8*l);
-                this.vertData[prei++]=randND();
-                this.vertData[prei++]=randND();
+                if(this.needReRnd){
+                    this.vertData[prei++]=randND();
+                    this.vertData[prei++]=randND();
+                }else{
+                    prei++;prei++;
+                }
+                this.vertData[prei++]=cx*this.U10x+cy*this.U10y;    //这个其实不用
                 cx+=dx;
             }
             cy+=dy;
         }
-        this.ndrands = new Float32Array(num*2);
-        this.ndrands.forEach((v,i,arr)=>{
-            arr[i] = randND();
-        });
+        this.calcA(null);   //这个一次计算即可
+        this.needReRnd=false;
     }
-    getZ(t:number){
-        
+
+    changeDir(dir:number){
+        //需要重新进行预计算
+        this.U10θ=dir;
+        this.U10x=this.U10*Math.cos(this.U10θ);
+        this.U10y=this.U10*Math.sin(this.U10θ);
+        this.preCalc();
     }
 
     /**
@@ -206,11 +234,6 @@ export class GerstnerWave{
      * 
      */
     calcA(info:{minv:number,maxv:number}):Float32Array{
-        if(this.lastU10θ==this.U10θ && this.lastU10==this.U10 )
-            return this.Ak;
-        this.lastU10=this.U10;
-        this.lastU10θ=this.U10θ;
-        
         this.calcBoShuPu(null);
         var minv=1e6;
         var maxv=-1e6;
@@ -241,32 +264,21 @@ export class GerstnerWave{
      * @param t {number} 时间
      */
     calcH(t:number,info:{minv:number,maxv:number}):ComplexArray{
-        this.calcA(null);
+        //直接使用已有的A
         var minv=1e6;
         var maxv=-1e6;
-        var stx = -π;//TODO 不要限制为1 //如果每个格子是1的话，K向量的取值范围就是-π到π
-        var dx = 2*π/(this.vertXNum-1);
-        var sty = π;//上下颠倒
-        var dy = -2*π/(this.vertYNum-1);
-        var k=0;//波向量的长度
-        var cx = stx;
-        var cy = sty;
-        var yy = 0;
         var sqrt2 = Math.sqrt(2);
         var ai=0;
         var hi=0;
         var real=this.Hk.real;
         var imag=this.Hk.imag;
-        var ndi=0;
+        var prei=0;
         for(var ny=0; ny<this.vertYNum; ny++){
-            stx=cx;
-            yy = cy*cy;
             for( var nx=0; nx<this.vertXNum; nx++){
                 var A = this.Ak[ai++];
-                var λr=this.ndrands[ndi++];// randND();
-                var λi=this.ndrands[ndi++];
-                k = Math.sqrt( cx*cx+yy);
-                var gkt = Math.sqrt(9.8*k)*t;
+                var λr=this.vertData[prei+4];
+                var λi=this.vertData[prei+5];
+                var gkt = this.vertData[prei+3]*t;
                 var Cv = Math.cos(gkt);
                 var Sv = Math.sin(gkt);
                 var t1 = A/sqrt2;
@@ -277,9 +289,8 @@ export class GerstnerWave{
                 if(minv>Rv)minv=Rv;
                 if(maxv<Rv)maxv=Rv;
                 hi++;
-                cx+=dx;
+                prei+=this.vertDataEleNum;
             }
-            cy+=dy;
         }
         if(info){
             info.minv=minv;

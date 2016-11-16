@@ -7,11 +7,12 @@
     <title>HTML App</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
     <base id="htmlbase" /><!-- 为了在app中方便处理图片url  -->
-    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
-    <script src="jquery-3.1.1.min.js"></script>
     <script>
         window.hasNodeJS = navigator.userAgent.indexOf('Electron') > 0;
+        //const electron = window.require('electron');
     </script>
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <script src="jquery-3.1.1.min.js"></script>
     <script src="./labs/runtime/3rdjs/Ease.js"></script>
     <script src="./labs/runtime/3rdjs/gl-matrix.js"></script>
     <script src="./labs/apploader/appLoader.js"></script>
@@ -51,6 +52,7 @@
         //startApp('accTest');
         //startApp('CanvasTest');
         startApp('ocean');
+        //startApp('ImgProc')
         //startApp('webglLine');
     </script>
 </body>

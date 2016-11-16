@@ -52,6 +52,9 @@ export function FFT(input:ComplexArray, inverse:boolean) {
     }
 }
 
+/**
+ * 递归方式实现的fft
+ */
 function FFT_Recursive(input:ComplexArray, inverse:boolean) {
     var
         n = input.length,
@@ -119,6 +122,9 @@ function FFT_Recursive(input:ComplexArray, inverse:boolean) {
     return input
 }
 
+/**
+ * 迭代方式实现的fft
+ */
 function FFT_2_Iterative(input:ComplexArray, inverse:boolean) {
     var
         n = input.length,
@@ -169,7 +175,7 @@ function FFT_2_Iterative(input:ComplexArray, inverse:boolean) {
     return output
 }
 
-function BitReverseIndex(index, n) {
+function BitReverseIndex(index:number, n:number):number {
     var bitreversed_index = 0
 
     while (n > 1) {

@@ -62,8 +62,8 @@ export class GerstnerWave{
     U10y=0;
     vertXNum=0;//2pi区间。
     vertYNum=0;
-    worldWidth=128;    //水面的x宽度。单位是m
-    worldHeight=128;   //水面的y宽度。单位是m
+    worldWidth=6;//128;    //水面的x宽度。单位是m
+    worldHeight=6;//128;   //水面的y宽度。单位是m
     boshupu:Float32Array;
     Ak:Float32Array;
     Hk:ComplexArray;

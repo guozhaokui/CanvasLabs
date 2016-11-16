@@ -85,7 +85,7 @@ export class Ocean{
         var hf = this.waveGen2.calcHField(t,info);
         var hi=0;
         var wavW=this.waveGen2.vertXNum;
-        var scale = 200;
+        var scale = 1;
         for(var y=0; y<this.height;y++){
             for(var x=0; x<this.width;x++){
                 this.hfield[hi++]=hf[x%wavW+(y%wavW)*wavW]*scale;
@@ -101,6 +101,11 @@ export class Ocean{
     genNormal(){
         var i=0;
         var ni=0;
+        var dx = 2*this.waveGen2.worldWidth / this.waveGen2.vertXNum;
+        var dxdx = dx * dx;
+        var dy = 2*this.waveGen2.worldHeight / this.waveGen2.vertYNum;
+        var dydy = dy * dy;
+        
         for(var y=1; y<this.height-1; y++){
             var yw=y*this.width;
             ni = 3*yw+3;//当前行的法线的起始位置.略过第一个x
@@ -114,14 +119,14 @@ export class Ocean{
                 var t =ny-py;
                 //a = norm(2,0,s)
                 //b = norm(0,2,t)
-                var sl = Math.sqrt(2*2+s*s);
-                var tl = Math.sqrt(2*2+t*t);
+                var sl = Math.sqrt(dxdx+s*s);
+                var tl = Math.sqrt(dydy+t*t);
                 //ay * bz - az * by = -az*by
                 //az * bx - ax * bz = -ax*bz
                 //ax * by - ay * bx = ax*by
-                var nx = -(s/sl)*(2/tl);
-                var ny = -(2/sl)*(t/tl);
-                var nz = (2/sl)*(2/tl);
+                var nx = -(s/sl)*(dy/tl);
+                var ny = -(dx/sl)*(t/tl);
+                var nz = (dx/sl)*(dy/tl);
                 var nl = Math.sqrt(nx*nx+ny*ny+nz*nz);
                 this.nfield[ni++]= nx/nl;
                 this.nfield[ni++]= ny/nl;

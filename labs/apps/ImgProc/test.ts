@@ -5,7 +5,7 @@
 import * as fs from 'fs';
 import async = require('../../runtime/runtimeMod/common/Async');
 //var canvasBuffer = require('electron-canvas-to-buffer');
-const nativeImage = require('electron').nativeImage;
+const {nativeImage} = require('electron');
 
 function startAnimation(renderFunc: () => void) {
     function _render() {
@@ -97,12 +97,12 @@ class ImgProc {
         this.img = new Image();
         this.img.src = './imgs/test.jpg';
         this.img.onload = function() { this.loaded = true; }.bind(this);
-        canv.onclick=this.onCanvClick;
+        canv.onclick=this.onCanvClick.bind(this);
     }
 
     onCanvClick(e:MouseEvent){
         //this.canv.toDataURL("image/png");
-        ResizeImg(this.img,1,1,'d:/temp/fuck.png');
+        ResizeImg(this.img,100,100,'d:/temp/fuck.png');
     }
     onRender() {
         if (!this.loaded)

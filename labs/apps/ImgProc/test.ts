@@ -33,6 +33,53 @@ function ResizeImg(img:HTMLImageElement, nw:number,nh:number, file:string){
     fs.writeFileSync(file,nimg.toPng());
 }
 
+/**
+ * 生成一个半球的法线图
+ * 高度朝外，认为是z方向
+ */
+function GenSphereNorm(d:number, file:string){
+    var r = d/2;
+    var canv = document.createElement('canvas');
+    canv.width=d;
+    canv.height=d;
+    var ctx = canv.getContext('2d');
+    var imgdata = ctx.getImageData(0, 0, canv.width,canv.height);
+    var pix = imgdata.data;
+
+    var dx = 1.0/r;
+    var dy = -1.0/r;
+    var fx = -1.0;
+    var fy = 1.0;
+    var yy=0;
+    var ci=0;
+    for(var cy=0; cy<d; cy++){
+        yy=fy*fy;
+        fx=-1.0;
+        for( var cx=0; cx<d; cx++){
+            var xx = fx*fx;
+            var dist = xx+yy;
+            if(dist>1){
+                pix[ci++] = 0.5*255;
+                pix[ci++] = 0.5*255;
+                pix[ci++] = 255;
+                pix[ci++] = 255;
+            }else{
+                var z = Math.sqrt(1.0-xx-yy);
+                pix[ci++]=(fx+1.0)/2.0*255; 
+                pix[ci++]=(fy+1.0)/2.0*255;
+                pix[ci++]=(z+1.0)/2.0*255;
+                pix[ci++]=255;
+            }
+            fx+=dx;
+        }
+        fy+=dy;
+    }
+    ctx.putImageData(imgdata, 0, 0);
+    var buf = canv.toDataURL('image/png');
+    var nimg = nativeImage.createFromDataURL(buf);
+    fs.writeFileSync(file,nimg.toPng());
+}
+
 class ImageBuffer {
     imgdt: ImageData = null;
     constructor(img: HTMLImageElement, l: number, t: number, w: number, h: number) {
@@ -102,7 +149,8 @@ class ImgProc {
 
     onCanvClick(e:MouseEvent){
         //this.canv.toDataURL("image/png");
-        ResizeImg(this.img,100,100,'d:/temp/fuck.png');
+        //ResizeImg(this.img,100,100,'d:/temp/fuck.png');
+        GenSphereNorm(256,'d:/temp/sphnrm.png');
     }
     onRender() {
         if (!this.loaded)

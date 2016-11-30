@@ -9,6 +9,7 @@ import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
 import {GerstnerWave} from './GerstnerWave';
 import {complex,fft,ifft,fft2} from './FFT';
 import {ComplexArray, FFT, FFT2D} from './fft1';
+import {saveAsPng,saveCanvas} from '../../runtime/runtimeMod/imgproc/imgfunc';
 
 function startAnimation(renderFunc: () => void) {
     function _render() {
@@ -35,14 +36,21 @@ class OceanTest {
     normValue='Normal:';
     curNorm=new Float32Array(3);
     testGW = new GerstnerWave(128,128);
+    datacanv :HTMLCanvasElement;
+
+    savenum=0;
     constructor(canv: HTMLCanvasElement) {
         this.canv = canv;
         this.ctx = canv.getContext("2d");
         this.img.src='imgs/basecolor.png'
-        var w = 300;
-        var h = 300;
+        this.datacanv = document.createElement('canvas');
+        this.datacanv.width=128;
+        this.datacanv.height=128;
+        var w = 128;
+        var h = 128;
         this.eyepos = new Vector3(w/2,h/2,200); 
-        var imgdata =this.imgData = this.ctx.getImageData(0, 0, w, h);
+        //var imgdata =this.imgData = this.ctx.getImageData(0, 0, w, h);
+        var imgdata = this.imgData =this.datacanv.getContext('2d').getImageData(0,0,this.datacanv.width,this.datacanv.height); 
         var pix = imgdata.data;
         this.ocean = new Ocean(pix,w,h);
         var skyimg = new Image();
@@ -231,10 +239,16 @@ class OceanTest {
         this.ocean.genHeight3(Date.now());
         this.ocean.genNormal();
         //this.ocean.renderHeight();
-        //this.ocean.renderNormal();
-        this.ocean.render(this.eyepos);
+        this.ocean.renderNormal();
+        this.datacanv.getContext('2d').putImageData(this.imgData,0,0);
+        if(this.savenum<10){
+            saveCanvas(this.datacanv,'d:/temp/ss'+this.savenum+'.png');
+            this.savenum++;
+        }
+        this.ctx.drawImage(this.datacanv,0,0);
+        //this.ocean.render(this.eyepos);
         this.ocean.showXWave(this.ctx, 0,300);
-        this.ctx.putImageData(this.imgData, 0, 0);
+        //this.ctx.putImageData(this.imgData, 0, 0);
         this.ctx.fillStyle='white';
         this.ctx.fillRect(0,500,1000,200);
         this.ctx.fillStyle='black';

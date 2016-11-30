@@ -80,7 +80,6 @@ export class Ocean{
         this.maxH = this.waveGen1.maxh;
     }
     genHeight3(t:number){
-        t/=20000;
         var info={minv:0,maxv:0};
         var hf = this.waveGen2.calcHField(t,info);
         var hi=0;

@@ -21,6 +21,47 @@ function startAnimation(renderFunc: () => void) {
 
 var updateFPS = new FPS2D.FPS2D().updateFPS;
 
+/**
+ * 1024x1024的大图，保存128x128的法线动画。
+ */
+class NormalAnimCanv{
+    curfrm=0;
+    normalAnimCanv:HTMLCanvasElement;
+    ctx:CanvasRenderingContext2D;
+    cx=0;
+    cy=0;
+    gridw=128;
+    constructor(){
+        this.normalAnimCanv = document.createElement('canvas');
+        this.normalAnimCanv.width=1024;
+        this.normalAnimCanv.height=1024;
+        this.ctx = this.normalAnimCanv.getContext('2d');
+   }
+
+   setCurFrmData(data:ImageData){
+       if(data.width!=this.gridw)
+            throw 'error size not match! should: 128';
+       this.ctx.putImageData(data,this.cx,this.cy);
+   }
+
+   save(file:string){
+       saveCanvas(this.normalAnimCanv,file);
+   }
+
+   /**
+    * 如果超了就返回false
+    */
+   nextfrm():boolean{
+       this.curfrm++;
+       this.cx+=this.gridw;
+       if(this.cx>=1024){
+           this.cx=0;
+           this.cy+=this.gridw;
+       }
+       return this.cy<=1024; 
+   }
+}
+
 class OceanTest {
     left: HTMLDivElement;
     right: HTMLDivElement;
@@ -31,14 +72,15 @@ class OceanTest {
     img: HTMLImageElement = new Image();
     ocean:Ocean;
     imgData:ImageData;
-    tm=0;
+    tm=Date.now();
+    tm1=0;
     eyepos:Vector3;
     normValue='Normal:';
     curNorm=new Float32Array(3);
     testGW = new GerstnerWave(128,128);
     datacanv :HTMLCanvasElement;
-
     savenum=0;
+    normAnim:NormalAnimCanv=new NormalAnimCanv();
     constructor(canv: HTMLCanvasElement) {
         this.canv = canv;
         this.ctx = canv.getContext("2d");
@@ -236,13 +278,25 @@ class OceanTest {
         this.ocean.waveGen2.U10 =windspeed;
         this.ocean.waveGen2.U10θ=winddir;
         this.ocean.waveGen2.preCalc();
-        this.ocean.genHeight3(Date.now());
+
+        var tm = (Date.now()-this.tm)/20000;
+
+        this.ocean.genHeight3(this.tm1);
+        this.tm1+=0.004;
         this.ocean.genNormal();
         //this.ocean.renderHeight();
         this.ocean.renderNormal();
         this.datacanv.getContext('2d').putImageData(this.imgData,0,0);
-        if(this.savenum<10){
-            saveCanvas(this.datacanv,'d:/temp/ss'+this.savenum+'.png');
+        if(this.savenum<64){
+            this.normAnim.setCurFrmData(this.imgData);
+            if(!this.normAnim.nextfrm()){
+                throw 'kkk';
+            }
+            //saveCanvas(this.datacanv,'d:/temp/ss'+this.savenum+'.png');
+            this.savenum++;
+        }else if(this.savenum==64){
+            this.normAnim.save('d:/temp/normanim.png');
+            alert('ok');
             this.savenum++;
         }
         this.ctx.drawImage(this.datacanv,0,0);

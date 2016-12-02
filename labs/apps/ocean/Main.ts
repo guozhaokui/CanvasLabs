@@ -9,7 +9,7 @@ import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
 import {GerstnerWave} from './GerstnerWave';
 import {complex,fft,ifft,fft2} from './FFT';
 import {ComplexArray, FFT, FFT2D} from './fft1';
-import {saveAsPng,saveCanvas} from '../../runtime/runtimeMod/imgproc/imgfunc';
+import {saveAsPng,saveCanvas,HmapToNormalmap} from '../../runtime/runtimeMod/imgproc/imgfunc';
 
 function startAnimation(renderFunc: () => void) {
     function _render() {
@@ -61,6 +61,47 @@ class NormalAnimCanv{
        return this.cy<=1024; 
    }
 }
+
+/**
+ * 生成128x128的法线计算表
+ */
+class NormalTable{
+    w=128;
+    hmap:Float32Array;
+    maxh=0;
+    constructor(){
+        this.hmap = new Float32Array(this.w*this.w);
+        var ci=0;
+        var d = 2.0*Math.PI/this.w;
+        var cx=0,cy=0;
+        for( var y=0; y<this.w; y++){
+            cx=0;
+            for(var x=0; x<this.w; x++){
+                var h =this.getH(cx,cy);
+                if(this.maxh<h) this.maxh=h;
+                this.hmap[ci++]=h;
+                cx+=d;
+            }
+            cy+=d;
+        }
+        var data = HmapToNormalmap(this.hmap,this.w,this.w,50.0,0,0,this.maxh);
+        saveAsPng(data, 'd:/temp/normaltable.png');
+    }
+
+    getH(x:number,y:number):number{
+        var wvx = 1.0-Math.abs(Math.sin(x));
+        var wvy = 1.0-Math.abs(Math.sin(y));
+        var swvx = Math.abs(Math.cos(x));
+        var swvy = Math.abs(Math.cos(y));    
+        wvx = wvx*(1.0-wvx)+swvx*wvx;
+        wvy = wvy*(1.0-wvy)+swvy*wvy;
+        //return Math.pow(1.0-Math.pow(wvx*wvy,0.65),choppy);
+        //return pow(1.0-pow(wv.x * wv.y,1.),choppy);
+        return wvx*wvy;        
+    }
+}
+
+new NormalTable();
 
 class OceanTest {
     left: HTMLDivElement;
@@ -282,7 +323,7 @@ class OceanTest {
         var tm = (Date.now()-this.tm)/20000;
 
         this.ocean.genHeight3(this.tm1);
-        this.tm1+=0.004;
+        this.tm1+=0.015625;//这样正好64帧一循环
         this.ocean.genNormal();
         //this.ocean.renderHeight();
         this.ocean.renderNormal();

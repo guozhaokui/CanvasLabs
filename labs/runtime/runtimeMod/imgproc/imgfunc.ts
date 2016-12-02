@@ -38,16 +38,16 @@ export function HmapToNormalmap(hmap:Float32Array, w:number, h:number,hs:number,
             var px = hmap[ci-1];
             var nx = hmap[ci+1];
             var py = hmap[ci-w];
-            var ny = hmap[ci+2];
-            vecs[0]=2;vecs[1]=0;vecs[0]=(nx-px)*hs;
-            vect[0]=0;vect[1]=2;vect[0]=(ny-py)*hs;
+            var ny = hmap[ci+w];
+            vecs[0]=2;vecs[1]=0;vecs[2]=(nx-px)*hs;
+            vect[0]=0;vect[1]=2;vect[2]=(ny-py)*hs;
             vec3.normalize( vecs, vecs);    //输入输出相同也没关系。
             vec3.normalize( vect, vect);  
             vec3.cross(vectmp, vecs,vect );
-            ret[ti++]=(1.0+vectmp[0])/2.0*255.0;
-            ret[ti++]=(1.0+vectmp[1])/2.0*255.0;
-            ret[ti++]=(1.0+vectmp[2])/2.0*255.0;
-            ret[ti++]=hmap[ci]/hmax*255;
+            retbuf[ti++]=(1.0+vectmp[0])/2.0*255.0;
+            retbuf[ti++]=(1.0+vectmp[1])/2.0*255.0;
+            retbuf[ti++]=(1.0+vectmp[2])/2.0*255.0;
+            retbuf[ti++]=hmap[ci]/hmax*255;
             ci++;
         }
     }
@@ -62,6 +62,13 @@ export function saveCanvas(canv:HTMLCanvasElement, outfile:string){
 }
 
 export function saveAsPng(data:ImageData,outfile:string){
-    var nimg = nativeImage.createEmpty();
+    var canv = document.createElement('canvas');
+    canv.width=data.width;
+    canv.height=data.height;
+    var ctx = canv.getContext('2d');
+    ctx.putImageData(data,0,0);
+    var buf = canv.toDataURL('image/png');
+    var nimg = nativeImage.createFromDataURL(buf);
+    fs.writeFileSync(outfile,nimg.toPng());
     return nativeImage;
 }

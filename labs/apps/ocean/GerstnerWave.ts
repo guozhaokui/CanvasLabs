@@ -56,7 +56,7 @@ export function test1():Float32Array{
  * k决定了波长，所以k和A的关系决定了波形的形状
  */
 export class GerstnerWave{
-    U10=11.5;  //10米处的风速
+    U10=5.0;  //10米处的风速
     U10θ=0;//-π/4; //风向
     U10x=1;
     U10y=0;

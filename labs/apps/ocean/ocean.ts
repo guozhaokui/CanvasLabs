@@ -105,6 +105,7 @@ export class Ocean{
         var dy = 2*this.waveGen2.worldHeight / this.waveGen2.vertYNum;
         var dydy = dy * dy;
         
+        var hk = 2.0;
         for(var y=1; y<this.height-1; y++){
             var yw=y*this.width;
             ni = 3*yw+3;//当前行的法线的起始位置.略过第一个x
@@ -114,8 +115,8 @@ export class Ocean{
                 var nx = this.hfield[yw_a_x+1];//[x+1][y]
                 var py = this.hfield[yw_a_x-this.width];//[x][y-1]
                 var ny = this.hfield[yw_a_x+this.width];//[x][y+1];
-                var s =nx-px;
-                var t =ny-py;
+                var s =hk*(nx-px);
+                var t =hk*(ny-py);
                 //a = norm(2,0,s)
                 //b = norm(0,2,t)
                 var sl = Math.sqrt(dxdx+s*s);

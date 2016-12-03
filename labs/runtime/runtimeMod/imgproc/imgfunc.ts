@@ -29,15 +29,18 @@ export function HmapToNormalmap(hmap:Float32Array, w:number, h:number,hs:number,
     var ret = new ImageData(w,h);
     var retbuf = ret.data;
     var ti=0;
-    for(var y=1;y<h-1; y++){
+    for(var y=0;y<h; y++){
         ci=y*w;
-        ci++;
         ti=ci*4;
-        for(var x=1; x<w-1; x++){
-            var px = hmap[ci-1];
-            var nx = hmap[ci+1];
-            var py = hmap[ci-w];
-            var ny = hmap[ci+w];
+        for(var x=0; x<w; x++){
+            var pxi = ci-1; if(pxi<0)pxi+=w;
+            var nxi = ci+1; if(x>=w-1)nxi-=w;
+            var px = hmap[pxi];
+            var nx = hmap[nxi];
+            var pyi = ci-w; if(pyi<0)pyi+=w*w;
+            var nyi = ci+w; if(y>=h-1)nyi=x;
+            var py = hmap[pyi];
+            var ny = hmap[nyi];
             vecs[0]=2;vecs[1]=0;vecs[2]=(nx-px)*hs;
             vect[0]=0;vect[1]=2;vect[2]=(ny-py)*hs;
             //vec3.normalize( vecs, vecs);    //输入输出相同也没关系。

@@ -84,7 +84,8 @@ class NormalTable{
             }
             cy+=d;
         }
-        var data = HmapToNormalmap(this.hmap,this.w,this.w,50.0,0,0,this.maxh);
+        console.log('maxh='+this.maxh);
+        var data = HmapToNormalmap(this.hmap,this.w,this.w,10.0,0,0,this.maxh);
         saveAsPng(data, 'd:/temp/normaltable.png');
     }
 
@@ -97,7 +98,7 @@ class NormalTable{
         wvy = wvy*(1.0-wvy)+swvy*wvy;
         //return Math.pow(1.0-Math.pow(wvx*wvy,0.65),choppy);
         //return pow(1.0-pow(wv.x * wv.y,1.),choppy);
-        return wvx*wvy;        
+        return Math.pow(1.0-Math.pow(wvx * wvy,1.),2.0);;        
     }
 }
 

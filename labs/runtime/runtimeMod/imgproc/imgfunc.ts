@@ -17,7 +17,7 @@ export function getImgBuf(img:HTMLImageElement):Uint8ClampedArray{
 
 /**
  * 返回的normalmap是4个通道。
- * @param hs 高度值的缩放。
+ * @param hs 高度值的缩放。hs*h 与w,h单位一致的情况效果最好
  * @param xwrap 
  * @param ywrap
  */
@@ -31,9 +31,8 @@ export function HmapToNormalmap(hmap:Float32Array, w:number, h:number,hs:number,
     var ti=0;
     for(var y=1;y<h-1; y++){
         ci=y*w;
-        ti=y*w*4;
         ci++;
-        ti+=4;
+        ti=ci*4;
         for(var x=1; x<w-1; x++){
             var px = hmap[ci-1];
             var nx = hmap[ci+1];
@@ -41,18 +40,54 @@ export function HmapToNormalmap(hmap:Float32Array, w:number, h:number,hs:number,
             var ny = hmap[ci+w];
             vecs[0]=2;vecs[1]=0;vecs[2]=(nx-px)*hs;
             vect[0]=0;vect[1]=2;vect[2]=(ny-py)*hs;
-            vec3.normalize( vecs, vecs);    //输入输出相同也没关系。
-            vec3.normalize( vect, vect);  
+            //vec3.normalize( vecs, vecs);    //输入输出相同也没关系。
+            //vec3.normalize( vect, vect);  
             vec3.cross(vectmp, vecs,vect );
+            vec3.normalize(vectmp,vectmp);
             retbuf[ti++]=(1.0+vectmp[0])/2.0*255.0;
             retbuf[ti++]=(1.0+vectmp[1])/2.0*255.0;
             retbuf[ti++]=(1.0+vectmp[2])/2.0*255.0;
-            retbuf[ti++]=hmap[ci]/hmax*255;
+            retbuf[ti++]=255;//hmap[ci]/hmax*255;
             ci++;
         }
     }
     return ret;
 }
+
+/**
+ * 生成一个半球的高度图。单位是1
+ * 高度朝外，认为是z方向
+ * @param d 格子个数。例如128则表示生成一个128x128的数据。如果要求法线，需要把高度x64。因为保存的是1.0
+ * 
+ */
+function GenSphereHeight(d:number):Float32Array{
+    var r = d/2;
+    var dx = 1.0/r;
+    var dy = -1.0/r;
+    var fx = -1;
+    var fy = 1;
+    var yy=0;
+    var ret = new Float32Array(d*d);
+    var ci=0;
+    for(var cy=0; cy<d; cy++){
+        yy=fy*fy;
+        fx=-1.0;
+        for( var cx=0; cx<d; cx++){
+            var xx = fx*fx;
+            var dist = xx+yy;
+            if(dist>1){
+                ret[ci++]=0;
+            }else{
+                var z = Math.sqrt(1.0-dist);
+                ret[ci++]=z;
+            }
+            fx+=dx;
+        }
+        fy+=dy;
+    }
+    return ret;
+}
+
 
 export function saveCanvas(canv:HTMLCanvasElement, outfile:string){
     var buf = canv.toDataURL('image/png');

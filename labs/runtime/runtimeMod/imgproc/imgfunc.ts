@@ -58,6 +58,47 @@ export function HmapToNormalmap(hmap:Float32Array, w:number, h:number,hs:number,
 }
 
 /**
+ * 根据法线图转换成高度图。
+ */
+export function normalmapToHeightmap(nmfile,worldw:number, worldh:number):Float32Array{
+    var img = nativeImage.createFromPath(nmfile);
+    if(!img){
+        throw 'open failed';
+    }
+    var buf = img.toBitmap() as Buffer;
+    var sz = img.getSize();
+    var w = sz.width;
+    var h = sz.height;
+    var hm = new Float32Array(w*h);
+    //test
+    saveFloatArray(hm, w,h, 'd:/temp/hm.png');
+
+    debugger;
+    return hm;
+}
+
+function saveFloatArray(data:Float32Array, w:number, h:number, outfile:string){
+    var imgdata = new ImageData(w,h);
+    var minv=data[0];
+    var maxv=data[0];
+    data.forEach((v,i,arr)=>{
+        if( v<minv ) minv=v;
+        if( v>maxv ) maxv=v;
+    });
+    var ci=0;
+    var dv = (maxv-minv)*255;
+    var cbuf = imgdata.data;
+    data.forEach((v,i,arr)=>{
+        var cdv = (v-minv)*dv;
+        cbuf[ci++]=cdv;
+        cbuf[ci++]=cdv;
+        cbuf[ci++]=cdv;
+        cbuf[ci++]=255;
+    });
+    saveAsPng(imgdata,outfile);
+}
+
+/**
  * 生成一个半球的高度图。单位是1
  * 高度朝外，认为是z方向
  * @param d 格子个数。例如128则表示生成一个128x128的数据。如果要求法线，需要把高度x64。因为保存的是1.0

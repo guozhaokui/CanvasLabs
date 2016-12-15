@@ -9,7 +9,7 @@ import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
 import {GerstnerWave} from './GerstnerWave';
 import {complex,fft,ifft,fft2} from './FFT';
 import {ComplexArray, FFT, FFT2D} from './fft1';
-import {saveAsPng,saveCanvas,HmapToNormalmap} from '../../runtime/runtimeMod/imgproc/imgfunc';
+import {saveAsPng,saveCanvas,HmapToNormalmap,normalmapToHeightmap} from '../../runtime/runtimeMod/imgproc/imgfunc';
 
 function startAnimation(renderFunc: () => void) {
     function _render() {
@@ -87,6 +87,8 @@ class NormalTable{
         console.log('maxh='+this.maxh);
         var data = HmapToNormalmap(this.hmap,this.w,this.w,10.0,0,0,this.maxh);
         saveAsPng(data, 'd:/temp/normaltable.png');
+        //test
+        var hbuf = normalmapToHeightmap('d:/temp/normaltable.png',1,1);
     }
 
     getH(x:number,y:number):number{
@@ -99,6 +101,10 @@ class NormalTable{
         //return Math.pow(1.0-Math.pow(wvx*wvy,0.65),choppy);
         //return pow(1.0-pow(wv.x * wv.y,1.),choppy);
         return Math.pow(1.0-Math.pow(wvx * wvy,1.),2.0);;        
+    }
+
+    test(){
+
     }
 }
 

@@ -1,15 +1,15 @@
 ///<reference path="../../runtime/defination/gl-matrix.d.ts"/>
 'use strict'
-import renderer = require('../../runtime/runtimeMod/webglRenderor/Renderer');
-import gpuProg = require('../../runtime/runtimeMod/webglRenderor/GpuProgram');
-import mesh = require('../../runtime/runtimeMod/webglRenderor/Mesh');
-import vdesc = require('../../runtime/runtimeMod/webglRenderor/VertexDesc');
-import material = require('../../runtime/runtimeMod/webglRenderor/Material');
-import ndata = require('../../runtime/runtimeMod/webglRenderor/NamedData');
-import arcball = require('../../runtime/runtimeMod/common/ArcBall');
-import headTrack = require('../../runtime/runtimeMod/common/HeadTracker'); 
-import async = require('../../runtime/runtimeMod/common/Async');
-import meshbuilder = require('../../runtime/runtimeMod/geometry/buildBox');
+import renderer = require('../webglRenderor/Renderer');
+import gpuProg = require('../webglRenderor/GpuProgram');
+import mesh = require('../webglRenderor/Mesh');
+import vdesc = require('../webglRenderor/VertexDesc');
+import material = require('../webglRenderor/Material');
+import ndata = require('../webglRenderor/NamedData');
+import arcball = require('../common/ArcBall');
+import headTrack = require('../common/HeadTracker'); 
+import async = require('../common/Async');
+import meshbuilder = require('../geometry/buildBox');
 
 var NamedData = ndata.NamedData;
 interface MyRunData extends ndata.JSRunData{

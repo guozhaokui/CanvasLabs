@@ -1,5 +1,5 @@
 
-import headTrack = require('../../runtime/runtimeMod/common/HeadTracker');
+import headTrack = require('../common/HeadTracker');
 
 class accTest {
     left: HTMLDivElement;

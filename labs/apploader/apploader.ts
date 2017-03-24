@@ -67,7 +67,8 @@ function loadSyncByXHR(url: string, encode: string): string | ArrayBuffer {
     function isAbs(url: string): boolean {
         return (url.indexOf('http://') === 0);
     }
-    var curfile = document['currentScript'].src;
+    //获得当前脚本所在的url
+    var curfile = (document.currentScript as HTMLScriptElement).src;// document['currentScript'].src;
     var lastS = curfile.lastIndexOf('/');
     var hasPath = lastS > 0;
 

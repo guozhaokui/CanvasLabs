@@ -1,11 +1,11 @@
 ///<reference path="../../runtime/defination/gl-matrix.d.ts" />
 'use strict'
-import FPS2D = require('../../runtime/runtimeMod/common/FPS2D');
-import {Plane} from '../../runtime/runtimeMod/shape/Plane';
-import {Sphere} from '../../runtime/runtimeMod/shape/Sphere';
-import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
-import {ShapeBase} from '../../runtime/runtimeMod/shape/ShapeBase';
-import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
+import FPS2D = require('../common/FPS2D');
+import {Plane} from '../shape/Plane';
+import {Sphere} from '../shape/Sphere';
+import {Vector3} from '../math/Vector3';
+import {ShapeBase} from '../shape/ShapeBase';
+import {Ray3,IntersectResult} from '../math/Ray3';
 import {Color} from './Color';
 import {Union} from './Union';
 import {CheckerMaterial} from './CheckerMaterial';

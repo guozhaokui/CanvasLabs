@@ -1,6 +1,6 @@
 ///<reference path="../../runtime/defination/gl-matrix.d.ts" />
 'use strict'
-import FPS2D = require('../../runtime/runtimeMod/common/FPS2D');
+import FPS2D = require('../common/FPS2D');
 
 function startAnimation(renderFunc: () => void) {
     function _render() {

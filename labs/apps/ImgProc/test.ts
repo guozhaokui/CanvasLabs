@@ -2,10 +2,12 @@
 /// <reference path='../../runtime/defination/electron.d.ts' />
 /// <reference path='../../runtime/defination/node.d.ts' />
 
+
 import * as fs from 'fs';
 import async = require('../../runtime/runtimeMod/common/Async');
 //var canvasBuffer = require('electron-canvas-to-buffer');
 const {nativeImage} = require('electron');
+import {saveAsPng,saveCanvas,HmapToNormalmap,normalmapToHeightmap} from '../../runtime/runtimeMod/imgproc/imgfunc';
 
 function startAnimation(renderFunc: () => void) {
     function _render() {
@@ -14,6 +16,7 @@ function startAnimation(renderFunc: () => void) {
     }
     window.requestAnimationFrame(_render);
 }
+
 
 /**
  * 把一个图片缩放一下，保存到指定的文件中
@@ -133,6 +136,71 @@ class ImageBuffer {
     }
 }
 
+/**
+ * vdc算法产生的序列。这个比random要均匀一些。
+ */
+ function radicalInverse_VdC(bits:number):number {
+     //先颠倒前后16位
+     bits = (bits << 16) | (bits >>> 16);
+     //下面颠倒16位中的前后8位
+     bits = ((bits & 0x55555555) << 1) | ((bits & 0xAAAAAAAA) >>> 1);
+     bits = ((bits & 0x33333333) << 2) | ((bits & 0xCCCCCCCC) >>> 2);
+     bits = ((bits & 0x0F0F0F0F) << 4) | ((bits & 0xF0F0F0F0) >>> 4);
+     bits = ((bits & 0x00FF00FF) << 8) | ((bits & 0xFF00FF00) >>> 8);
+     //必须是uint的
+     return new Uint32Array([bits])[0] * 2.3283064365386963e-10; // / 0x100000000
+ }
+
+ function radicalInverse_VdC1(bits:number):number {
+     //先颠倒前后16位
+     bits = (bits << 16) | (bits >>> 16);
+     //下面颠倒16位中的前后8位
+     bits = ((bits & 0x55555555) << 1) | ((bits & 0xAAAAAAAA) >>> 1);
+     bits = ((bits & 0x33333333) << 2) | ((bits & 0xCCCCCCCC) >>> 2);
+     bits = ((bits & 0x0F0F0F0F) << 4) | ((bits & 0xF0F0F0F0) >>> 4);
+     bits = ((bits & 0x00FF00FF) << 8) | ((bits & 0xFF00FF00) >>> 8);
+     //必须是uint的
+     return new Uint32Array([bits])[0] * 2.3283064365386963e-10; // / 0x100000000
+ }
+
+function saveasbmp(){
+    var dt = new ImageData(32,32);
+    var buf = dt.data;
+    var ci=0;
+    var uv = new Uint32Array(1);
+    for(var y=0; y<32; y++){
+        for(var x=0; x<32; x++){
+            var v = radicalInverse_VdC1(ci++)*256*256*256;
+            uv[0]=v;
+            console.log(uv[0].toString(16));
+            buf[ci++]=uv[0]&0xff;
+            buf[ci++]=(uv[0]>>>8)&0xff;
+            buf[ci++]=(uv[0]>>>16)&0xff;
+            buf[ci++]=255;
+        }
+    }
+    saveAsPng(dt,'d:/temp/Hammersley.png');
+}
+
+function getFromBmp(i:number,buf):number{
+    return 0;
+}
+
+ /**
+
+ function radicalInverse_VdC(bits:number):number {
+     var constv = new Uint32Array([0x55555555,0xAAAAAAAA,0x33333333,0xCCCCCCCC,0x0F0F0F0F,0xF0F0F0F0,0x00FF00FF,0xFF00FF00]);
+     bits = (bits << 16) | (bits >> 16);
+     bits = ((bits & constv[0]) << 1) | ((bits & constv[1]) >> 1);
+     bits = ((bits & constv[2]) << 2) | ((bits & constv[3]) >> 2);
+     bits = ((bits & constv[4]) << 4) | ((bits & constv[5]) >> 4);
+     bits = ((bits & constv[6]) << 8) | ((bits & constv[7]) >> 8);
+     return bits * 2.3283064365386963e-10; // / 0x100000000
+ }
+
+  */
+
+
 class ImgProc {
     img: HTMLImageElement = null;
     ctx: CanvasRenderingContext2D = null;
@@ -151,11 +219,21 @@ class ImgProc {
         //this.canv.toDataURL("image/png");
         //ResizeImg(this.img,100,100,'d:/temp/fuck.png');
         GenSphereNorm(256,'d:/temp/sphnrm.png');
+saveasbmp();
+        for(var i=0; i<1024; i++){
+            var x = i/1024.0;
+            var y = radicalInverse_VdC(i);
+            x*=128;
+            y*=128;
+            //var x = Math.random()*128;
+            //var y = Math.random()*128;
+            this.ctx.fillRect(x,y,1,1);
+        }
     }
     onRender() {
         if (!this.loaded)
             return;
-        this.ctx.drawImage(this.img,0,0);
+        //this.ctx.drawImage(this.img,0,0);
     }
     
 }
@@ -165,3 +243,10 @@ export function main(canv: HTMLCanvasElement) {
     startAnimation(app.onRender.bind(app));
 }
 
+//
+var vv = [];
+for(var x=-10; x<10; x+=0.1){
+    var y = Math.pow(Math.E,-x*x/2)/Math.sqrt(2*Math.PI);
+    vv.push(y);
+    //console.log(y);
+}

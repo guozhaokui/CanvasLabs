@@ -1,7 +1,7 @@
 
-import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
-import {ShapeBase} from '../../runtime/runtimeMod/shape/ShapeBase';
-import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
+import {Vector3} from '../math/Vector3';
+import {ShapeBase} from '../shape/ShapeBase';
+import {Ray3,IntersectResult} from '../math/Ray3';
 import {Color} from './Color';
 import {Union} from './Union';
 import {PerspectiveCamera} from './PerspectiveCamera';

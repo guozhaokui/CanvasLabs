@@ -5,7 +5,8 @@
         "noImplicitAny": false,
         "rootDir": ".",
         "removeComments": true,
-        "sourceMap": false
+        "sourceMap": false,
+        "outDir": "../../apps"
     },
     "exclude": [
         "node_modules"

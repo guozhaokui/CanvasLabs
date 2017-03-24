@@ -1,6 +1,6 @@
 
-import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
-import {Ray3} from '../../runtime/runtimeMod/math/Ray3';
+import {Vector3} from '../math/Vector3';
+import {Ray3} from '../math/Ray3';
 
 export class PerspectiveCamera{
     eye=new Vector3(0,0,0);

@@ -5,7 +5,11 @@
         "noImplicitAny": false,
         "rootDir": ".",
         "removeComments": true,
-        "sourceMap": false
+        "sourceMap": false,
+        "rootDirs": [
+            ".",
+            "../runtime/runtimeMod"
+        ]
     },
     "exclude": [
         "node_modules"

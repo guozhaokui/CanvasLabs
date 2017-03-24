@@ -1,5 +1,5 @@
-import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
-import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
+import {Vector3} from '../math/Vector3';
+import {Ray3,IntersectResult} from '../math/Ray3';
 import {Color} from './Color';
 
 export class CheckerMaterial{

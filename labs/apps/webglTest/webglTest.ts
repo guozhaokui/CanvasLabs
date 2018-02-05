@@ -1,15 +1,15 @@
 ///<reference path="../../runtime/defination/gl-matrix.d.ts"/>
 'use strict'
-import renderer = require('../webglRenderor/Renderer');
-import gpuProg = require('../webglRenderor/GpuProgram');
-import mesh = require('../webglRenderor/Mesh');
+import {RenderGroup,Renderer,WebGLExt}  from '../webglRenderor/Renderer';
+import {GpuProgram} from '../webglRenderor/GpuProgram';
+import {Mesh} from '../webglRenderor/Mesh';
 import vdesc = require('../webglRenderor/VertexDesc');
-import material = require('../webglRenderor/Material');
+import {Material} from '../webglRenderor/Material';
 import ndata = require('../webglRenderor/NamedData');
-import arcball = require('../common/ArcBall');
-import headTrack = require('../common/HeadTracker'); 
+import {ArcBall} from '../common/ArcBall';
+import {HeadTracker} from '../common/HeadTracker'; 
 import async = require('../common/Async');
-import meshbuilder = require('../geometry/buildBox');
+import {boxBuilder} from '../geometry/buildBox';
 
 var NamedData = ndata.NamedData;
 interface MyRunData extends ndata.JSRunData{
@@ -18,15 +18,15 @@ interface MyRunData extends ndata.JSRunData{
 }
 
 class testMeshRender {
-    gpuprog = new gpuProg.GpuProgram();
-    mesh = new mesh.Mesh();
-    renderGroup = new renderer.RenderGroup();
+    gpuprog = new GpuProgram();
+    mesh = new Mesh();
+    renderGroup = new RenderGroup();
     
     texture:WebGLTexture = null;
     
     rundataDesc=new NamedData();        //rundata描述
     rundata:MyRunData = null;         //rundata实例
-    material = new material.Material();
+    material = new Material();
     rundatas: ArrayBuffer[] = [null, null];
     
     eyePosFinal = new Float32Array([0, 0, -2]);
@@ -35,9 +35,9 @@ class testMeshRender {
     
     resok: boolean = false;
     //camera: Camera = new Camera(this.eyePosFinal, this.targetPosFinal, this.upPosFinal);
-    arcball = new arcball.ArcBall(window);
+    arcball = new ArcBall(window);
     
-    headTrack = new headTrack.HeadTracker(window);
+    headTrack = new HeadTracker(window);
     
     matobj:Float32Array = mat4.create();
     matCam:Float32Array = mat4.create();
@@ -53,13 +53,14 @@ class testMeshRender {
     }
 
     init(webgl: WebGLRenderingContext) {
-        renderer.Renderer.initGlExt(webgl);
-        var gl = <renderer.WebGLExt>webgl;
+        var a='bbb';
+        a.substring(1,2)
+        Renderer.initGlExt(webgl);
+        var gl = <WebGLExt>webgl;
         glMatrix.setMatrixArrayType(Float32Array);
         
         this.arcball.init(gl.drawingBufferWidth,gl.drawingBufferHeight);
         this.prepareRes(gl);
-
         gl.disable(gl.CULL_FACE);
         gl.enable(gl.DEPTH_TEST);
         //gl.enable(gl.ALPHA_TEST);
@@ -72,12 +73,11 @@ class testMeshRender {
     }
 
     onRender(webgl: WebGLRenderingContext) {
-        var gl = <renderer.WebGLExt>webgl;
+        var gl = <WebGLExt>webgl;
         gl.clearColor(0.8, 0.8, 0.8, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         if (!this.resok)
             return;
-
         mat4.fromQuat(this.matobj,this.arcball.quatResult);
         //mat4.copy(this.matobj, this.headTrack.getResult());
         mat4.lookAt(this.matCam, this.eyePosFinal, this.targetPosFinal, this.upPosFinal);
@@ -92,7 +92,7 @@ class testMeshRender {
         window.requestAnimationFrame(()=>{this.onRender(webgl)});
     }
 
-    async prepareRes(gl:renderer.WebGLExt) {
+    async prepareRes(gl:WebGLExt) {
         try {
             var img = await async.loadImage('imgs/test.jpg');
             var tex1: WebGLTexture = gl.createTexture();
@@ -105,7 +105,7 @@ class testMeshRender {
             this.gpuprog.setSrc(vssrc, pssrc);
             this.material.gpuProgram = this.gpuprog.compile(gl);
 
-            var boxb = new meshbuilder.boxBuilder(0.8,0.8,0.8);
+            var boxb = new boxBuilder(0.8,0.8,0.8);
             boxb.sepFace(true).needUV(true).needNorm(true);
             this.mesh = boxb.build();
             this.material.alpha = 1.0;

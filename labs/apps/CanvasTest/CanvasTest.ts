@@ -83,10 +83,56 @@ class CanvasTest {
         ctx.fillRect(180,50,75,50);
         ctx.restore();
     }
+
+    testVG(){
+        var ctx = this.ctx;
+        ctx.measureText('').width
+        ctx.save();
+        ctx.fillStyle='#ff0000';
+        ctx.strokeStyle='#000000';
+        ctx.beginPath();
+        let k = Math.PI/180;
+        ctx.arc(100,100,50,45*k,270*k);
+        ctx.fill();
+        ctx.beginPath();        
+        ctx.fillStyle='#ffff00';
+        ctx.rect(100,100,100,100);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();        
+    }
+
+    drawFocus(x:number, y:number){
+        var ctx = this.ctx;
+        ctx.moveTo(x-10,y);
+        ctx.lineTo(x+10,y);
+        ctx.moveTo(x,y-10);
+        ctx.lineTo(x,y+10);
+    }
+    testFont(){
+        var ctx = this.ctx;
+        ctx.save();
+        var fh=80;
+        ctx.font=fh+'px Arial';
+        ctx.textAlign='';
+        ctx.fillStyle='#00ff00';
+        ctx.strokeStyle='#ff0000';
+        ctx.textBaseline='alphabetic';
+        ctx.fillText('gbc的咖啡8屋IE',100,100);
+        var mi = ctx.measureText('a');
+        var mi1 = ctx.measureText('i');
+        
+        this.drawFocus(100,100);
+        this.drawFocus(100,100-fh);
+        ctx.stroke();
+        ctx.restore();        
+    }
     onRender = () => {
         //this.testLine();
-        this.testComposite();
-        updateFPS(this.ctx);
+        //this.testComposite();
+        //this.testVG();
+        this.testFont();
+        //updateFPS(this.ctx);
     }
 }
 

@@ -1,15 +1,15 @@
 ///<reference path="../../runtime/defination/gl-matrix.d.ts" />
 'use strict'
-import FPS2D = require('../../runtime/runtimeMod/common/FPS2D');
+import FPS2D = require('../common/FPS2D');
 import {Ocean} from './ocean'
 import {Sampler } from './sampler'
-import {Plane} from '../../runtime/runtimeMod/shape/Plane';
-import {Vector3} from '../../runtime/runtimeMod/math/Vector3';
-import {Ray3,IntersectResult} from '../../runtime/runtimeMod/math/Ray3';
+import {Plane} from '../shape/Plane';
+import {Vector3} from '../math/Vector3';
+import {Ray3,IntersectResult} from '../math/Ray3';
 import {GerstnerWave} from './GerstnerWave';
 import {complex,fft,ifft,fft2} from './FFT';
 import {ComplexArray, FFT, FFT2D} from './fft1';
-import {saveAsPng,saveCanvas,HmapToNormalmap,normalmapToHeightmap} from '../../runtime/runtimeMod/imgproc/imgfunc';
+import {saveAsPng,saveCanvas,HmapToNormalmap,normalmapToHeightmap} from '../imgproc/imgfunc';
 
 function startAnimation(renderFunc: () => void) {
     function _render() {

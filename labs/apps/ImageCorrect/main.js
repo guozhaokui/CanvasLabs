@@ -1,0 +1,2 @@
+function drawImage(srcPts, dstPts) {
+}

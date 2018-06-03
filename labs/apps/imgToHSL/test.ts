@@ -142,7 +142,7 @@ class ImageBuffer {
                 b = buf[idx + 2];
                 //buf[idx+3];
                 let [h,s,l] = rgbToHsl(r,g,b);
-                [r,g,b] = hslToRgb(1,0.0,l)
+                [r,g,b] = hslToRgb(0,s,0.5)
                 buf[idx] = r;
                 buf[idx + 1] = r;
                 buf[idx + 2] = r;
@@ -187,10 +187,10 @@ class ImageBuffer {
                 b = buf[idx + 2];
                 //buf[idx+3];
                 let [h,s,l] = rgbToHsl(r,g,b);
-                l*=255;
-                buf[idx] = l;
-                buf[idx + 1] = l;
-                buf[idx + 2] = l;
+                [r,g,b] = hslToRgb(0,0,l)
+                buf[idx] = r;
+                buf[idx + 1] = r;
+                buf[idx + 2] = r;
                 idx += 4;
             }
         }
@@ -214,21 +214,38 @@ class ImageBuffer {
     }
 }
 
-var img1: ImageBuffer = null;
 var gctx: CanvasRenderingContext2D = null;
-async function ff(ctx: CanvasRenderingContext2D) {
+
+
+
+
+async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:string) {
     gctx=ctx;
-    var img = await async.loadImage('./imgs/test.jpg');
-    img1 = new ImageBuffer(img, 0, 0, img.width , img.height);
+    
+    var img = await async.loadImage(imgsrc);
+    canv.width=img.width*4;
+    canv.height=img.height;
+    let img1 = new ImageBuffer(img, 0, 0, img.width , img.height);
     //ctx.putImageData(imgl.imgdt, 0, 0);
-    img1.toHS();
+    img1.toH();
+    gctx.drawImage(img,0,0);
+    gctx.putImageData(img1.imgdt, img.width, 0);
+
+    let img2 = new ImageBuffer(img, 0, 0, img.width , img.height);
+    img2.toS();
+    gctx.putImageData(img2.imgdt, img.width*2, 0);
+
+    let img3 = new ImageBuffer(img, 0, 0, img.width , img.height);
+    img3.toL();
+    gctx.putImageData(img3.imgdt, img.width*3, 0);
+    
     window.requestAnimationFrame(onRender);
 }
 
 var frm = 0;
 var cc = 0;
 function onRender() {
-    gctx.putImageData(img1.imgdt, 0, 0);
+    
     window.requestAnimationFrame(onRender);
 }
 
@@ -236,7 +253,20 @@ function main(window) {
     var el = document.getElementById('content');
     var canv = <HTMLCanvasElement>document.getElementById('myCanvas');
     var ctx = canv.getContext('2d');
-    ff(ctx);
+
+    let fileEle = document.createElement('input') as HTMLInputElement;
+    fileEle.type='file';
+    //document.body.appendChild(fileEle);
+    document.body.insertBefore(fileEle,document.getElementById('root'));
+    //var fileEle = document.getElementById('file') as HTMLInputElement;
+    ff(canv,ctx,'./imgs/test1.jpg');
+
+    fileEle.onchange = function(e) {
+        var file1 = e.target.files[0];
+        var url1 = window.URL.createObjectURL(file1);
+        ff(canv,ctx,url1);
+    }
+
 }
 
 main(window);

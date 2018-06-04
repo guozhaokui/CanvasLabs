@@ -1,1 +1,1 @@
-start electron.exe --debug=5858 .
+electron --debug=5858 .

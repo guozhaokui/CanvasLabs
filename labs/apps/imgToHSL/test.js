@@ -147,9 +147,9 @@ class ImageBuffer {
                 b = buf[idx + 2];
                 let [h, s, l] = rgbToHsl(r, g, b);
                 [r, g, b] = hslToRgb(h, s, 0.5);
-                buf[idx] = r * l;
-                buf[idx + 1] = g * l;
-                buf[idx + 2] = b * l;
+                buf[idx] = r;
+                buf[idx + 1] = g;
+                buf[idx + 2] = b;
                 idx += 4;
             }
         }
@@ -195,7 +195,7 @@ function ff(canv, ctx, imgsrc) {
         gctx = ctx;
         var img = yield async.loadImage(imgsrc);
         canv.width = img.width * 4;
-        canv.height = img.height;
+        canv.height = img.height * 2;
         let img1 = new ImageBuffer(img, 0, 0, img.width, img.height);
         img1.toH();
         gctx.drawImage(img, 0, 0);
@@ -203,9 +203,12 @@ function ff(canv, ctx, imgsrc) {
         let img2 = new ImageBuffer(img, 0, 0, img.width, img.height);
         img2.toS();
         gctx.putImageData(img2.imgdt, img.width * 2, 0);
+        let img4 = new ImageBuffer(img, 0, 0, img.width, img.height);
+        img4.toHS();
+        gctx.putImageData(img4.imgdt, 0, img.height);
         let img3 = new ImageBuffer(img, 0, 0, img.width, img.height);
         img3.toL();
-        gctx.putImageData(img3.imgdt, img.width * 3, 0);
+        gctx.putImageData(img3.imgdt, img.width, img.height);
         window.requestAnimationFrame(onRender);
     });
 }

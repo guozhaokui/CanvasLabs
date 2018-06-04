@@ -187,10 +187,11 @@ class ImageBuffer {
                 b = buf[idx + 2];
                 //buf[idx+3];
                 let [h,s,l] = rgbToHsl(r,g,b);
-                [r,g,b] = hslToRgb(0,0,l)
+                [r,g,b] = hslToRgb(0,1,l)
                 buf[idx] = r;
                 buf[idx + 1] = r;
                 buf[idx + 2] = r;
+                buf[idx+3]=255;
                 idx += 4;
             }
         }
@@ -217,12 +218,15 @@ class ImageBuffer {
 var gctx: CanvasRenderingContext2D = null;
 
 
+var imglist:ImageBuffer[];
 
+var srcImg:HTMLImageElement;
 
 async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:string) {
     gctx=ctx;
     
     var img = await async.loadImage(imgsrc);
+    srcImg=img;
     canv.width=img.width*4;
     canv.height=img.height*2;
     let img1 = new ImageBuffer(img, 0, 0, img.width , img.height);
@@ -243,6 +247,7 @@ async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:s
     img3.toL();
     gctx.putImageData(img3.imgdt, img.width, img.height);
 
+    imglist=[null,img1,img2,img4,img3];
     window.requestAnimationFrame(onRender);
 }
 
@@ -256,7 +261,7 @@ function onRender() {
 function main(window) {
     var el = document.getElementById('content');
     var canv = <HTMLCanvasElement>document.getElementById('myCanvas');
-    var ctx = canv.getContext('2d');
+    var ctx = canv.getContext('2d',{premultipliedAlpha:false});
 
     let fileEle = document.createElement('input') as HTMLInputElement;
     fileEle.type='file';
@@ -278,3 +283,28 @@ document.addEventListener('mousemove', (e: MouseEvent) => {
 
 })
 
+var restoreImg:ImageBuffer;
+
+document.addEventListener('click',(e:MouseEvent)=>{
+    let gridx=(e.clientX/srcImg.width)|0;
+    let gridy=(e.clientY/srcImg.height)|0;
+    let id = gridx+gridy*3;
+    if(id==0)
+        return;
+    gctx.save();
+    gctx.globalAlpha=0.5;
+    let sx = gridx*srcImg.width;
+    let sy = gridy*srcImg.height;
+    gctx.drawImage(srcImg,sx,sy);
+    gctx.restore();
+    let resImg = imglist[id];
+    setTimeout(() => {
+        gctx.putImageData(resImg.imgdt,sx,sy);
+    }, (3000));
+
+});
+
+document.addEventListener('mousedown',(e:MouseEvent)=>{
+});
+document.addEventListener('mouseup',(e:MouseEvent)=>{
+});

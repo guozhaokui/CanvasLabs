@@ -166,10 +166,11 @@ class ImageBuffer {
                 g = buf[idx + 1];
                 b = buf[idx + 2];
                 let [h, s, l] = rgbToHsl(r, g, b);
-                [r, g, b] = hslToRgb(0, 0, l);
+                [r, g, b] = hslToRgb(0, 1, l);
                 buf[idx] = r;
                 buf[idx + 1] = r;
                 buf[idx + 2] = r;
+                buf[idx + 3] = 255;
                 idx += 4;
             }
         }
@@ -190,10 +191,13 @@ class ImageBuffer {
     }
 }
 var gctx = null;
+var imglist;
+var srcImg;
 function ff(canv, ctx, imgsrc) {
     return __awaiter(this, void 0, void 0, function* () {
         gctx = ctx;
         var img = yield async.loadImage(imgsrc);
+        srcImg = img;
         canv.width = img.width * 4;
         canv.height = img.height * 2;
         let img1 = new ImageBuffer(img, 0, 0, img.width, img.height);
@@ -209,6 +213,7 @@ function ff(canv, ctx, imgsrc) {
         let img3 = new ImageBuffer(img, 0, 0, img.width, img.height);
         img3.toL();
         gctx.putImageData(img3.imgdt, img.width, img.height);
+        imglist = [null, img1, img2, img4, img3];
         window.requestAnimationFrame(onRender);
     });
 }
@@ -220,7 +225,7 @@ function onRender() {
 function main(window) {
     var el = document.getElementById('content');
     var canv = document.getElementById('myCanvas');
-    var ctx = canv.getContext('2d');
+    var ctx = canv.getContext('2d', { premultipliedAlpha: false });
     let fileEle = document.createElement('input');
     fileEle.type = 'file';
     document.body.insertBefore(fileEle, document.getElementById('root'));
@@ -233,4 +238,26 @@ function main(window) {
 }
 main(window);
 document.addEventListener('mousemove', (e) => {
+});
+var restoreImg;
+document.addEventListener('click', (e) => {
+    let gridx = (e.clientX / srcImg.width) | 0;
+    let gridy = (e.clientY / srcImg.height) | 0;
+    let id = gridx + gridy * 3;
+    if (id == 0)
+        return;
+    gctx.save();
+    gctx.globalAlpha = 0.5;
+    let sx = gridx * srcImg.width;
+    let sy = gridy * srcImg.height;
+    gctx.drawImage(srcImg, sx, sy);
+    gctx.restore();
+    let resImg = imglist[id];
+    setTimeout(() => {
+        gctx.putImageData(resImg.imgdt, sx, sy);
+    }, (3000));
+});
+document.addEventListener('mousedown', (e) => {
+});
+document.addEventListener('mouseup', (e) => {
 });

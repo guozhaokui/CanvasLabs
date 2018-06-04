@@ -166,9 +166,9 @@ class ImageBuffer {
                 let [h,s,l] = rgbToHsl(r,g,b);
                 [r,g,b] = hslToRgb(h,s,0.5);
                 //l+=0.5;
-                buf[idx] = r*l;
-                buf[idx + 1] = g*l;
-                buf[idx + 2] = b*l;
+                buf[idx] = r;
+                buf[idx + 1] = g;
+                buf[idx + 2] = b;
                 idx += 4;
             }
         }
@@ -224,7 +224,7 @@ async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:s
     
     var img = await async.loadImage(imgsrc);
     canv.width=img.width*4;
-    canv.height=img.height;
+    canv.height=img.height*2;
     let img1 = new ImageBuffer(img, 0, 0, img.width , img.height);
     //ctx.putImageData(imgl.imgdt, 0, 0);
     img1.toH();
@@ -235,10 +235,14 @@ async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:s
     img2.toS();
     gctx.putImageData(img2.imgdt, img.width*2, 0);
 
+    let img4 = new ImageBuffer(img, 0, 0, img.width , img.height);
+    img4.toHS();
+    gctx.putImageData(img4.imgdt, 0, img.height);
+
     let img3 = new ImageBuffer(img, 0, 0, img.width , img.height);
     img3.toL();
-    gctx.putImageData(img3.imgdt, img.width*3, 0);
-    
+    gctx.putImageData(img3.imgdt, img.width, img.height);
+
     window.requestAnimationFrame(onRender);
 }
 

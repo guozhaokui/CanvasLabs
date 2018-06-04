@@ -2,12 +2,12 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const async = require('../../runtime/runtimeMod/common/Async');
+const async = require("../../runtime/runtimeMod/common/Async");
 function hslToRgb(h, s, l) {
     var r, g, b;
     if (s == 0) {
@@ -128,8 +128,8 @@ class ImageBuffer {
                 let [h, s, l] = rgbToHsl(r, g, b);
                 [r, g, b] = hslToRgb(0, s, 0.5);
                 buf[idx] = r;
-                buf[idx + 1] = r;
-                buf[idx + 2] = r;
+                buf[idx + 1] = g;
+                buf[idx + 2] = b;
                 idx += 4;
             }
         }

@@ -144,8 +144,8 @@ class ImageBuffer {
                 let [h,s,l] = rgbToHsl(r,g,b);
                 [r,g,b] = hslToRgb(0,s,0.5)
                 buf[idx] = r;
-                buf[idx + 1] = r;
-                buf[idx + 2] = r;
+                buf[idx + 1] = g;
+                buf[idx + 2] = b;
                 idx += 4;
             }
         }

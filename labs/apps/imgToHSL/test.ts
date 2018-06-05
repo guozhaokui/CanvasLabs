@@ -69,56 +69,61 @@ function rgbToHsl(r, g, b){
     return [h, s, l];
 }
 
-let pencils:number[][]=[];
-let pencilsHSL:number[][]=[];
-pencils[801]=[255,255,255];
-pencils[836]=[0,0,0];
-pencils[813]= [155,38,38];
-pencils[810]= [164,49,39]
-pencils[845]= [129,47,35]
-pencils[846]= [176,105,93]
-pencils[812]= [185,105,79]
-pencils[806]= [185,91,47]  
-pencils[848]= [182,134,94] 
-pencils[807]= [182,118,28] 
-pencils[804]= [183,142,32] 
-pencils[803]= [182,167,42] 
-pencils[802]= [178,175,27] 
-pencils[817]= [110,154,33] 
-pencils[816]= [42,123,40] 
-pencils[820]= [41,126,68]  
-pencils[818]= [23,69,47]   
-pencils[840]= [16,118,89]  
-pencils[821]= [31,54,52]   
-pencils[851]= [29,136,131] 
-pencils[822]= [40,116,165] 
-pencils[826]= [17,64,111]  
-pencils[824]= [26,78,153]  
-pencils[825]= [16,56,149]  
-pencils[827]= [28,36,143]  
-pencils[823]= [18,20,93]   
-pencils[850]= [38,39,146]  
-pencils[830]= [177,95,120] 
+let pencils:number[][][]=[];
+pencils[801]=[[255,255,255]];   //orig rgb, orig hsl, 一半亮度，两倍亮度
+pencils[836]=[[0,0,0]];
+pencils[813]= [[155,38,38]];
+pencils[810]= [[164,49,39]]
+pencils[845]= [[129,47,35]]
+pencils[846]= [[176,105,93]]
+pencils[812]= [[185,105,79]]
+pencils[806]= [[185,91,47]]  
+pencils[848]= [[182,134,94]] 
+pencils[807]= [[182,118,28]] 
+pencils[804]= [[183,142,32]] 
+pencils[803]= [[182,167,42]] 
+pencils[802]= [[178,175,27]] 
+pencils[817]= [[110,154,33]] 
+pencils[816]= [[42,123,40]] 
+pencils[820]= [[41,126,68]]  
+pencils[818]= [[23,69,47] ]  
+pencils[840]= [[16,118,89]]  
+pencils[821]= [[31,54,52]]   
+pencils[851]= [[29,136,131]] 
+pencils[822] = [[40,116,165]] 
+pencils[826]= [[17,64,111]]  
+pencils[824]= [[26,78,153]]  
+pencils[825]= [[16,56,149]]  
+pencils[827]= [[28,36,143]]  
+pencils[823]= [[18,20,93]]   
+pencils[850]= [[38,39,146]]  
+pencils[830]= [[177,95,120]] 
+pencils[831] = [[130,66,43]]
+pencils[854] = [[ 73,41,62]]
+pencils[808] = [[ 137,80,56]]
+pencils[844] = [[ 79,53,45]]
+pencils[839] = [[ 72,43,41]]
+pencils[847] = [[ 117,44,47]]
+pencils[829] = [[ 106,25,95]]
+pencils[814] = [[ 111,24,37]]
+pencils[853] = [[ 120,46,75]]
+pencils[832] = [[ 62,43,36]]
+pencils[833] = [[ 64,57,47]]
+pencils[828] = [[ 76,60,130]]
+pencils[835] = [[ 89,88,83]]
+pencils[834] = [[ 43,42,50]]
 
 function initPencil(){
     pencils.forEach((v,idx)=>{
-        pencilsHSL[idx]=rgbToHsl(v[0],v[1],v[2])
+        let [r,g,b] = v[0];
+        let hsl =v[1] = rgbToHsl(r,g,b);
+        //half
+        v[3]=[hsl[0],hsl[1],hsl[2]/2];
+        v[2]=hslToRgb(v[3][0],v[3][1],v[3][2]);
+        //double
+        v[5]=[hsl[0],hsl[1],Math.min(hsl[2]*2,1)];
+        v[4]=hslToRgb(v[5][0],v[5][1],v[5][2]);
     })
-}
-
-function colorDist(r1:number,g1:number,b1:number, r2:number,g2:number,b2:number){
-    let dr = r1-r2;
-    let dg = g2-g1;
-    let db = b2-b1;
-    let dist1 = Math.sqrt(dr*dr+dg*dg+db*db);
-
-    let [h1,s1,l1]=rgbToHsl(r1,g1,b1);
-    let [h2,s2,l2]=rgbToHsl(r2,g2,b2);
-    let dh=h2-h1;
-    let ds=s2-s1;
-    let dl=l2-l1;
-    let dist2 = Math.sqrt(dh*dh+ds*ds+dl*dl);
-    return Math.min(dist1,dist2);
 }
 
 function v3dist(x1:number,y1:number,z1:number,x2:number,y2:number,z2:number){
@@ -129,19 +134,23 @@ function v3dist(x1:number,y1:number,z1:number,x2:number,y2:number,z2:number){
 }
 
 function selsectPencil(r:number, g:number, b:number,h:number,s:number,l:number){
-    let mindist=100000;
-    let minii=-1;
-    for( let i=0; i<pencils.length; i++){
+    let mindist = 100000;
+    let minii = -1;
+    let minli = 0;
+    for( let i = 0; i < pencils.length; i++){
         if(!pencils[i])continue;
-        let [pr,pg,pb]=pencils[i];
-        let [ph,ps,pl]=pencilsHSL[i];
-        let dist = Math.min( v3dist(pr,pg,pb,r,g,b), v3dist(h,s,l,ph,ps,pl));
-        if(mindist>dist){
-            mindist=dist;
-            minii=i;
+        for(let li=0; li<1; li++){
+            let [pr,pg,pb] = pencils[i][li*2];
+            let [ph,ps,pl] = pencils[i][li*2+1];
+            let dist = Math.min( v3dist(pr,pg,pb,r,g,b), 255*v3dist(h,s,l,ph,ps,pl));
+            if(mindist > dist){
+                mindist=dist;
+                minii=i;
+                minli=li;
+            }
         }
     }
-    return pencils[minii];
+    return pencils[minii][minli];
 }
 
 class ImageBuffer {
@@ -359,7 +368,7 @@ async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:s
     gctx.putImageData(img5.imgdt, img.width*2, img.height);
 
 
-    imglist=[null,img1,img2,img4,img3];
+    imglist=[null,img1,img2,img4,img3,img5];
     window.requestAnimationFrame(onRender);
 }
 

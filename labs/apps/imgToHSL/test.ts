@@ -69,8 +69,84 @@ function rgbToHsl(r, g, b){
     return [h, s, l];
 }
 
+let pencils:number[][]=[];
+let pencilsHSL:number[][]=[];
+pencils[801]=[255,255,255];
+pencils[836]=[0,0,0];
+pencils[813]= [155,38,38];
+pencils[810]= [164,49,39]
+pencils[845]= [129,47,35]
+pencils[846]= [176,105,93]
+pencils[812]= [185,105,79]
+pencils[806]= [185,91,47]  
+pencils[848]= [182,134,94] 
+pencils[807]= [182,118,28] 
+pencils[804]= [183,142,32] 
+pencils[803]= [182,167,42] 
+pencils[802]= [178,175,27] 
+pencils[817]= [110,154,33] 
+pencils[816]= [42,123,40] 
+pencils[820]= [41,126,68]  
+pencils[818]= [23,69,47]   
+pencils[840]= [16,118,89]  
+pencils[821]= [31,54,52]   
+pencils[851]= [29,136,131] 
+pencils[822]= [40,116,165] 
+pencils[826]= [17,64,111]  
+pencils[824]= [26,78,153]  
+pencils[825]= [16,56,149]  
+pencils[827]= [28,36,143]  
+pencils[823]= [18,20,93]   
+pencils[850]= [38,39,146]  
+pencils[830]= [177,95,120] 
+
+function initPencil(){
+    pencils.forEach((v,idx)=>{
+        pencilsHSL[idx]=rgbToHsl(v[0],v[1],v[2])
+    })
+}
+
+function colorDist(r1:number,g1:number,b1:number, r2:number,g2:number,b2:number){
+    let dr = r1-r2;
+    let dg = g2-g1;
+    let db = b2-b1;
+    let dist1 = Math.sqrt(dr*dr+dg*dg+db*db);
+
+    let [h1,s1,l1]=rgbToHsl(r1,g1,b1);
+    let [h2,s2,l2]=rgbToHsl(r2,g2,b2);
+    let dh=h2-h1;
+    let ds=s2-s1;
+    let dl=l2-l1;
+    let dist2 = Math.sqrt(dh*dh+ds*ds+dl*dl);
+    return Math.min(dist1,dist2);
+}
+
+function v3dist(x1:number,y1:number,z1:number,x2:number,y2:number,z2:number){
+    let dx=x1-x2;
+    let dy=y1-y2;
+    let dz=z1-z2;
+    return Math.sqrt(dx*dx+dy*dy+dz*dz);
+}
+
+function selsectPencil(r:number, g:number, b:number,h:number,s:number,l:number){
+    let mindist=100000;
+    let minii=-1;
+    for( let i=0; i<pencils.length; i++){
+        if(!pencils[i])continue;
+        let [pr,pg,pb]=pencils[i];
+        let [ph,ps,pl]=pencilsHSL[i];
+        let dist = Math.min( v3dist(pr,pg,pb,r,g,b), v3dist(h,s,l,ph,ps,pl));
+        if(mindist>dist){
+            mindist=dist;
+            minii=i;
+        }
+    }
+    return pencils[minii];
+}
+
 class ImageBuffer {
     imgdt: ImageData = null;
+    hsldt:Float32Array;
     constructor(img: HTMLImageElement, l: number, t: number, w: number, h: number) {
         var canvas = document.createElement("canvas");
         canvas.width = w;
@@ -105,12 +181,12 @@ class ImageBuffer {
         }
     }
 
-    toH() {
+    toHSL(){
+        this.hsldt=new Float32Array(this.imgdt.width*this.imgdt.height*4);
         var buf = this.imgdt.data;
+        var out = this.hsldt;
         var idx = 0;
-        var r = 0;
-        var g = 0;
-        var b = 0;
+        var r = 0,g=0,b=0;
         for (var y = 0; y < this.imgdt.height; y++) {
             for (var x = 0; x < this.imgdt.width; x++) {
                 r = buf[idx];
@@ -118,6 +194,21 @@ class ImageBuffer {
                 b = buf[idx + 2];
                 //buf[idx+3];
                 let [h,s,l] = rgbToHsl(r,g,b);
+                out[idx] = h;
+                out[idx + 1] = s;
+                out[idx + 2] = l;
+                idx += 4;
+            }
+        }
+    }
+
+    keepH(hsldt:Float32Array) {
+        var buf = this.imgdt.data;
+        var idx = 0;
+        let r = 0,g = 0,b = 0,h=0,s=0,l=0;
+        for (var y = 0; y < this.imgdt.height; y++) {
+            for (var x = 0; x < this.imgdt.width; x++) {
+                h = hsldt[idx];
                 s=1;
                 l=0.5;
                 [r,g,b] = hslToRgb(h,s,l);
@@ -129,19 +220,16 @@ class ImageBuffer {
         }
     }
 
-    toS() {
+    keepS(hsldt:Float32Array) {
         var buf = this.imgdt.data;
         var idx = 0;
         var r = 0;
         var g = 0;
-        var b = 0;
+        var b = 0,s=0;
         for (var y = 0; y < this.imgdt.height; y++) {
             for (var x = 0; x < this.imgdt.width; x++) {
-                r = buf[idx];
-                g = buf[idx + 1];
-                b = buf[idx + 2];
+                s = hsldt[idx + 1];
                 //buf[idx+3];
-                let [h,s,l] = rgbToHsl(r,g,b);
                 [r,g,b] = hslToRgb(0,s,0.5)
                 buf[idx] = r;
                 buf[idx + 1] = g;
@@ -151,19 +239,16 @@ class ImageBuffer {
         }
     }    
 
-    toHS() {
+    keepHS(hsldt:Float32Array) {
         var buf = this.imgdt.data;
         var idx = 0;
         var r = 0;
         var g = 0;
-        var b = 0;
+        var b = 0,h=0,s=0;
         for (var y = 0; y < this.imgdt.height; y++) {
             for (var x = 0; x < this.imgdt.width; x++) {
-                r = buf[idx];
-                g = buf[idx + 1];
-                b = buf[idx + 2];
-                //buf[idx+3];
-                let [h,s,l] = rgbToHsl(r,g,b);
+                h = hsldt[idx];
+                s = hsldt[idx + 1];
                 [r,g,b] = hslToRgb(h,s,0.5);
                 //l+=0.5;
                 buf[idx] = r;
@@ -174,19 +259,15 @@ class ImageBuffer {
         }
     }    
 
-    toL() {
+    keepL(hsldt:Float32Array) {
         var buf = this.imgdt.data;
         var idx = 0;
         var r = 0;
         var g = 0;
-        var b = 0;
+        var b = 0,l;
         for (var y = 0; y < this.imgdt.height; y++) {
             for (var x = 0; x < this.imgdt.width; x++) {
-                r = buf[idx];
-                g = buf[idx + 1];
-                b = buf[idx + 2];
-                //buf[idx+3];
-                let [h,s,l] = rgbToHsl(r,g,b);
+                l = hsldt[idx + 2];
                 [r,g,b] = hslToRgb(0,1,l)
                 buf[idx] = r;
                 buf[idx + 1] = r;
@@ -197,6 +278,28 @@ class ImageBuffer {
         }
     }    
 
+    toNearest(hsldt:Float32Array) {
+        var buf = this.imgdt.data;
+        var idx = 0;
+        var r = 0,g = 0,b = 0;
+        var h=0,s=0,l=0;
+        for (var y = 0; y < this.imgdt.height; y++) {
+            for (var x = 0; x < this.imgdt.width; x++) {
+                r = buf[idx];
+                g = buf[idx + 1];
+                b = buf[idx + 2];
+                h=hsldt[idx];
+                s=hsldt[idx+1];
+                l=hsldt[idx+2];
+                [r,g,b]=selsectPencil(r,g,b,h,s,l);
+                buf[idx] = r;
+                buf[idx + 1] = g;
+                buf[idx + 2] = b;
+                idx += 4;
+            }
+        }
+    }    
+    
     get Buffer() {
         return this.imgdt.data;
     }
@@ -221,6 +324,7 @@ var gctx: CanvasRenderingContext2D = null;
 var imglist:ImageBuffer[];
 
 var srcImg:HTMLImageElement;
+var imgHSL:ImageBuffer;
 
 async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:string) {
     gctx=ctx;
@@ -229,23 +333,31 @@ async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:s
     srcImg=img;
     canv.width=img.width*4;
     canv.height=img.height*2;
-    let img1 = new ImageBuffer(img, 0, 0, img.width , img.height);
-    //ctx.putImageData(imgl.imgdt, 0, 0);
-    img1.toH();
+    imgHSL = new ImageBuffer(img, 0, 0, img.width , img.height);
+    imgHSL.toHSL();
     gctx.drawImage(img,0,0);
+
+    //ctx.putImageData(imgl.imgdt, 0, 0);
+    let img1 = new ImageBuffer(img, 0, 0, img.width , img.height);
+    img1.keepH(imgHSL.hsldt);
     gctx.putImageData(img1.imgdt, img.width, 0);
 
     let img2 = new ImageBuffer(img, 0, 0, img.width , img.height);
-    img2.toS();
+    img2.keepS(imgHSL.hsldt);
     gctx.putImageData(img2.imgdt, img.width*2, 0);
 
     let img4 = new ImageBuffer(img, 0, 0, img.width , img.height);
-    img4.toHS();
+    img4.keepHS(imgHSL.hsldt);
     gctx.putImageData(img4.imgdt, 0, img.height);
 
     let img3 = new ImageBuffer(img, 0, 0, img.width , img.height);
-    img3.toL();
+    img3.keepL(imgHSL.hsldt);
     gctx.putImageData(img3.imgdt, img.width, img.height);
+
+    let img5 = new ImageBuffer(img, 0, 0, img.width , img.height);
+    img5.toNearest(imgHSL.hsldt);
+    gctx.putImageData(img5.imgdt, img.width*2, img.height);
+
 
     imglist=[null,img1,img2,img4,img3];
     window.requestAnimationFrame(onRender);
@@ -259,6 +371,7 @@ function onRender() {
 }
 
 function main(window) {
+    initPencil();
     var el = document.getElementById('content');
     var canv = <HTMLCanvasElement>document.getElementById('myCanvas');
     var ctx = canv.getContext('2d',{premultipliedAlpha:false});

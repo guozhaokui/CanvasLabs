@@ -114,6 +114,7 @@ pencils[835] = [[ 89,88,83]]
 pencils[834] = [[ 43,42,50]]
 
 function initPencil(){
+    /*
     pencils.forEach((v,idx)=>{
         let [r,g,b] = v[0];
         let hsl =v[1] = rgbToHsl(r,g,b);
@@ -124,6 +125,21 @@ function initPencil(){
         v[5]=[hsl[0],hsl[1],Math.min(hsl[2]*2,1)];
         v[4]=hslToRgb(v[5][0],v[5][1],v[5][2]);
     })
+    */
+   //只用rgb
+   let tmpP = pencils.concat();
+   tmpP.forEach((v,idx)=>{
+    let [r,g,b] = v[0];
+    //一半的是2开头
+    let id = idx%100 + 200;
+    pencils[id]=[[ r/2,g/2,b/2]];
+    //这个是3开头
+    id=idx%100 + 300;
+    let nr = r+50; if(nr>255)nr=255;
+    let ng = g+50; if(ng>255)ng=255;
+    let nb = b+50; if(nb>255)nb=255;
+    pencils[id]=[[ nr,ng,nb]];
+   });
 }
 
 function v3dist(x1:number,y1:number,z1:number,x2:number,y2:number,z2:number){
@@ -133,29 +149,32 @@ function v3dist(x1:number,y1:number,z1:number,x2:number,y2:number,z2:number){
     return Math.sqrt(dx*dx+dy*dy+dz*dz);
 }
 
+let gSelPen='';
 function selsectPencil(r:number, g:number, b:number,h:number,s:number,l:number){
     let mindist = 100000;
     let minii = -1;
     let minli = 0;
     for( let i = 0; i < pencils.length; i++){
         if(!pencils[i])continue;
-        for(let li=0; li<1; li++){
-            let [pr,pg,pb] = pencils[i][li*2];
-            let [ph,ps,pl] = pencils[i][li*2+1];
-            let dist = Math.min( v3dist(pr,pg,pb,r,g,b), 255*v3dist(h,s,l,ph,ps,pl));
+            let [pr,pg,pb] = pencils[i][0];
+            //let [ph,ps,pl] = pencils[i][li*2+1];
+            //let dist = Math.min( v3dist(pr,pg,pb,r,g,b), 255*v3dist(h,s,l,ph,ps,pl));
+            let dist = v3dist(pr,pg,pb,r,g,b);
             if(mindist > dist){
                 mindist=dist;
                 minii=i;
-                minli=li;
+                //minli=li;
             }
-        }
     }
-    return pencils[minii][minli];
+    let sv = (minii/100)|0;
+    gSelPen = '8'+minii%100+':'+['x','x','half','+50','x','x','x','x',''][sv];
+    return pencils[minii][0];
 }
 
 class ImageBuffer {
     imgdt: ImageData = null;
     hsldt:Float32Array;
+    penInfo:string[];
     constructor(img: HTMLImageElement, l: number, t: number, w: number, h: number) {
         var canvas = document.createElement("canvas");
         canvas.width = w;
@@ -292,6 +311,9 @@ class ImageBuffer {
         var idx = 0;
         var r = 0,g = 0,b = 0;
         var h=0,s=0,l=0;
+        let pendesc='';
+        let cpos=0;
+        this.penInfo=new Array(this.imgdt.width*this.imgdt.height);
         for (var y = 0; y < this.imgdt.height; y++) {
             for (var x = 0; x < this.imgdt.width; x++) {
                 r = buf[idx];
@@ -301,10 +323,34 @@ class ImageBuffer {
                 s=hsldt[idx+1];
                 l=hsldt[idx+2];
                 [r,g,b]=selsectPencil(r,g,b,h,s,l);
+                this.penInfo[cpos]=gSelPen;
                 buf[idx] = r;
                 buf[idx + 1] = g;
                 buf[idx + 2] = b;
                 idx += 4;
+                cpos++;
+            }
+        }
+    }    
+    toNearest1() {
+        var buf = this.imgdt.data;
+        var idx = 0;
+        var r = 0,g = 0,b = 0;
+        var h=0,s=0,l=0;
+        let cpos=0;
+        this.penInfo=new Array(this.imgdt.width*this.imgdt.height);
+        for (var y = 0; y < this.imgdt.height; y++) {
+            for (var x = 0; x < this.imgdt.width; x++) {
+                r = buf[idx];
+                g = buf[idx + 1];
+                b = buf[idx + 2];
+                [r,g,b]=selsectPencil(r,g,b,0,0,0);
+                this.penInfo[cpos]=gSelPen;
+                buf[idx] = r;
+                buf[idx + 1] = g;
+                buf[idx + 2] = b;
+                idx += 4;
+                cpos++;
             }
         }
     }    
@@ -334,6 +380,7 @@ var imglist:ImageBuffer[];
 
 var srcImg:HTMLImageElement;
 var imgHSL:ImageBuffer;
+var mouseDown=false;
 
 async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:string) {
     gctx=ctx;
@@ -364,18 +411,62 @@ async function ff(canv:HTMLCanvasElement, ctx: CanvasRenderingContext2D,imgsrc:s
     gctx.putImageData(img3.imgdt, img.width, img.height);
 
     let img5 = new ImageBuffer(img, 0, 0, img.width , img.height);
-    img5.toNearest(imgHSL.hsldt);
+    img5.toNearest1();
     gctx.putImageData(img5.imgdt, img.width*2, img.height);
 
 
     imglist=[null,img1,img2,img4,img3,img5];
+   /*
+   var cx=0,cy=0;
+    pencils.forEach(v=>{
+        let [r,g,b] = v[0];
+        gctx.fillStyle='rgb('+r+','+g+','+b+')';
+        gctx.fillRect(cx,cy,10,10);
+        cx+=11;
+    });
+
+    cy+=30;
+    cx=0;
+    pencils.forEach(v=>{
+        let [r,g,b] = v[0];
+        [r,g,b]=selsectPencil(r,g,b,0,0,0);
+        gctx.fillStyle='rgb('+r+','+g+','+b+')';
+        gctx.fillRect(cx,cy,10,10);
+        cx+=11;
+    });
+
+    let img5 = new ImageBuffer(img, 0, 0, img.width , img.height);
+    img5.toNearest1();
+    gctx.putImageData(img5.imgdt, 0,30);
+    */
     window.requestAnimationFrame(onRender);
 }
 
+
 var frm = 0;
 var cc = 0;
+var penx=0;
+var peny=0;
+
 function onRender() {
-    
+    if( mouseDown){
+        let gridx=(penx/srcImg.width)|0;
+        let gridy=(peny/srcImg.height)|0;
+        let id = gridx+gridy*3;
+        if(id==5){
+            let img = imglist[5];
+            gctx.putImageData(img.imgdt, img.imgdt.width*2, img.imgdt.height);
+            let px=(penx%srcImg.width)|0;
+            let py=(peny%srcImg.height)|0;
+            let pos = px+py*srcImg.width;
+            let color = 'rgb('+img.imgdt.data.slice(pos*4,pos*4+3).join(',')+')';
+            gctx.fillStyle=color;
+            gctx.fillRect(penx+50,peny,100,20);
+            gctx.fillStyle='#000000';
+            gctx.fillText(img.penInfo[px+py*srcImg.width], penx+50,peny+10);
+
+        }            
+    }
     window.requestAnimationFrame(onRender);
 }
 
@@ -402,16 +493,20 @@ function main(window) {
 
 main(window);
 document.addEventListener('mousemove', (e: MouseEvent) => {
-
+    if(mouseDown){
+        penx=e.clientX;
+        peny=e.clientY;
+    }
 })
 
 var restoreImg:ImageBuffer;
+
 
 document.addEventListener('click',(e:MouseEvent)=>{
     let gridx=(e.clientX/srcImg.width)|0;
     let gridy=(e.clientY/srcImg.height)|0;
     let id = gridx+gridy*3;
-    if(id==0)
+    if(id==0 || id==5)
         return;
     gctx.save();
     gctx.globalAlpha=0.5;
@@ -427,6 +522,8 @@ document.addEventListener('click',(e:MouseEvent)=>{
 });
 
 document.addEventListener('mousedown',(e:MouseEvent)=>{
+    mouseDown=true;
 });
 document.addEventListener('mouseup',(e:MouseEvent)=>{
+    mouseDown=false;
 });

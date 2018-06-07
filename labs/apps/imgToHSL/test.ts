@@ -476,6 +476,49 @@ function main(window) {
     var canv = <HTMLCanvasElement>document.getElementById('myCanvas');
     var ctx = canv.getContext('2d',{premultipliedAlpha:false});
 
+    canv.addEventListener('mousemove', (e: MouseEvent) => {
+        if(mouseDown){
+            penx=e.clientX;
+            peny=e.clientY;
+        }
+    })
+    
+    canv.addEventListener('touchstart', (e: TouchEvent) => {
+        mouseDown=true;
+        penx=e.touches[0].clientX;
+        peny=e.touches[0].clientY;
+    })
+    
+    
+    
+    canv.addEventListener('click',(e:MouseEvent)=>{
+        let gridx=(e.clientX/srcImg.width)|0;
+        let gridy=(e.clientY/srcImg.height)|0;
+        let id = gridx+gridy*3;
+        if(id==0 || id==5)
+            return;
+        gctx.save();
+        gctx.globalAlpha=0.5;
+        let sx = gridx*srcImg.width;
+        let sy = gridy*srcImg.height;
+        gctx.drawImage(srcImg,sx,sy);
+        gctx.restore();
+        let resImg = imglist[id];
+        setTimeout(() => {
+            gctx.putImageData(resImg.imgdt,sx,sy);
+        }, (3000));
+    
+    });
+    
+    canv.addEventListener('mousedown',(e:MouseEvent)=>{
+        mouseDown=true;
+    });
+    canv.addEventListener('mouseup',(e:MouseEvent)=>{
+        mouseDown=false;
+    });
+    
+        
+
     let fileEle = document.createElement('input') as HTMLInputElement;
     fileEle.type='file';
     //document.body.appendChild(fileEle);
@@ -491,39 +534,5 @@ function main(window) {
 
 }
 
-main(window);
-document.addEventListener('mousemove', (e: MouseEvent) => {
-    if(mouseDown){
-        penx=e.clientX;
-        peny=e.clientY;
-    }
-})
-
 var restoreImg:ImageBuffer;
-
-
-document.addEventListener('click',(e:MouseEvent)=>{
-    let gridx=(e.clientX/srcImg.width)|0;
-    let gridy=(e.clientY/srcImg.height)|0;
-    let id = gridx+gridy*3;
-    if(id==0 || id==5)
-        return;
-    gctx.save();
-    gctx.globalAlpha=0.5;
-    let sx = gridx*srcImg.width;
-    let sy = gridy*srcImg.height;
-    gctx.drawImage(srcImg,sx,sy);
-    gctx.restore();
-    let resImg = imglist[id];
-    setTimeout(() => {
-        gctx.putImageData(resImg.imgdt,sx,sy);
-    }, (3000));
-
-});
-
-document.addEventListener('mousedown',(e:MouseEvent)=>{
-    mouseDown=true;
-});
-document.addEventListener('mouseup',(e:MouseEvent)=>{
-    mouseDown=false;
-});
+main(window);
